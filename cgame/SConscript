@@ -141,7 +141,6 @@ cgame_env['CPPPATH'] += [
 cgame_env['CPPDEFINES'] += [
 	'PROJECT_CGAME',
 	'JPLUA',
-	'LUA_COMPAT_BITLIB',
 	'LUA_COMPAT_APIINTCASTS',
 ]
 if target_plat == 'Linux':
