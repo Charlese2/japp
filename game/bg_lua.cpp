@@ -144,6 +144,7 @@ namespace JPLua {
 	const char *DoString( const char *str ) {
 		if ( luaL_dostring( ls.L, str ) != 0 ) {
 			const char *errorMsg = lua_tostring( ls.L, -1 );
+			lua_pop( ls.L, 1 );
 			trap->Print( S_COLOR_RED "Lua Error: " S_COLOR_WHITE "%s\n", errorMsg );
 			return errorMsg;
 		}
@@ -217,7 +218,7 @@ namespace JPLua {
 			trap->Print( S_COLOR_GREEN "JPLua " S_COLOR_RED "Error: %s\n", lua_tostring( L, -1 ) );
 			lua_pop( L, 1 );
 
-			//TODO: disable current plugin..?
+			DisablePlugin(ls.currentPlugin);
 			return qfalse;
 		}
 		return qtrue;
@@ -485,6 +486,7 @@ namespace JPLua {
 	void DisablePlugin( plugin_t *plugin ) {
 		if ( !plugin->enabled ) {
 			trap->Print( S_COLOR_YELLOW "plugin '%s' already unloaded\n", plugin->name );
+			return;
 		}
 
 		// call the unload event
