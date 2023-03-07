@@ -2057,7 +2057,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		pwSet = 1;
 	}
 
-	if ( cgQueueLoad ) {
+	if ( cgQueueLoad || (cg.haveDeferredPlayers && cg_deferPlayers.integer == 2 && cg.snap && VectorLength( &cg.snap->ps.velocity ) < 1.0f ) ) {
 		// do this before you start messing around with adding ghoul2 refents and crap
 		CG_ActualLoadDeferredPlayers();
 		cgQueueLoad = qfalse;
@@ -2340,7 +2340,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	cg.currentRefdef = REFDEF_DEFAULT;
 
 	// draw the cursor
-	if ( (trap->Key_GetCatcher() & KEYCATCH_CGAME) /*&& !CG_ChatboxActive()*/ ) {
+	if ( (trap->Key_GetCatcher() & KEYCATCH_CGAME) ) {
 		const float cursorSize = 48.0f;
 		displayContextDef_t *dc = Display_GetContext();
 		CG_DrawPic( dc->cursorx, dc->cursory, cursorSize, cursorSize, cgs.activeCursor );

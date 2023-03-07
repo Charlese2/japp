@@ -3,10 +3,10 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "qcommon/q_shared.h"
-#include "tr_types.h"
+#include "cgame/tr_types.h"
 #include "ui/menudef.h"
-#include "bg_public.h"
-#include "cg_public.h"
+#include "game/bg_public.h"
+#include "cgame/cg_public.h"
 
 //Raz: Added
 #define XCVAR_PROTO
@@ -519,6 +519,7 @@ typedef struct cg_s {
 	int				clientNum;
 	qboolean		demoPlayback;
 	qboolean		levelShot;			// taking a level menu screenshot
+	bool			haveDeferredPlayers;
 	int				deferredPlayerLoading;
 	qboolean		loading;			// don't defer players at initial startup
 	qboolean		intermissionStarted;	// don't play voice rewards, because game will end shortly
@@ -908,7 +909,6 @@ void			CG_ChatboxScroll( int direction );
 void			CG_ChatboxSelect( const char *cbName );
 void			CG_ChatboxSelectTabNext( void );
 void			CG_ChatboxSelectTabPrev( void );
-void			CG_ChatboxTabComplete( void );
 void			CG_CheckChangedPredictableEvents( playerState_t *ps );
 void			CG_CheckEvents( centity_t *cent );
 void			CG_CheckPlayerG2Weapons( playerState_t *ps, centity_t *cent );
@@ -1008,7 +1008,7 @@ void			CG_LoadingString( const char *s );
 void			CG_LoadingItem( int itemNum );
 void			CG_LoadingClient( int clientNum );
 void			CG_LoadMenus( const char *menuFile );
-void			CG_LogPrintf( fileHandle_t fileHandle, const char *fmt, ... );
+void			CG_LogPrintf( fileHandle_t fileHandle, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 localEntity_t *	CG_MakeExplosion( vector3 *origin, vector3 *dir, qhandle_t hModel, int numframes, qhandle_t shader, int msec, qboolean isSprite, float scale,
 					uint32_t flags );
 void			CG_ManualEntityRender( centity_t *cent );
