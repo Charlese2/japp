@@ -2324,6 +2324,9 @@ static qboolean G_SaberCollide( gentity_t *atk, gentity_t *def, vector3 *atkStar
 		def->client->pers.adminData.isSlept || def->client->pers.adminData.isGhost )
 		return qfalse;
 
+	if ((atk->playerState->eFlags & EF_ALT_DIM) != (def->playerState->eFlags & EF_ALT_DIM))
+		return qfalse;
+
 	i = 0;
 	while ( i < MAX_SABERS ) {
 		j = 0;
@@ -3847,6 +3850,9 @@ static qboolean CheckSaberDamage( gentity_t *self, int rSaberNum, int rBladeNum,
 		{
 			return qfalse;
 		}
+
+		if (g_entities[tr.entityNum].client && (self->playerState->eFlags & EF_ALT_DIM) != (g_entities[tr.entityNum].playerState->eFlags & EF_ALT_DIM))
+			return qfalse;
 
 		if ( g_entities[tr.entityNum].client && self->client->ps.duelInProgress
 			&& self->client->ps.duelIndex != g_entities[tr.entityNum].s.number )
