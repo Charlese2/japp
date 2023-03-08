@@ -1954,6 +1954,7 @@ void ClientThink_real(gentity_t *ent) {
             }
 
             Jetpack_Off(ent);
+            ent->client->ps.eFlags &= ~EF_ALT_DIM;
             ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_JETPACK);
         } else {
             client->ps.speed = 0;
@@ -2420,7 +2421,16 @@ void ClientThink_real(gentity_t *ent) {
                 qboolean themDueling = other->client->ps.duelInProgress;
                 int themDuelist = other->client->ps.duelIndex;
 
+                int selfDim = ent->playerState->eFlags & EF_ALT_DIM;
+                int otherDim = other->client->ps.eFlags & EF_ALT_DIM;
+
                 if ((selfDueling && i != selfDuelist) || (themDueling && themDuelist != selfNum)) {
+                    other->savedContents = other->r.contents;
+                    other->r.contents = 0;
+                    trap->LinkEntity((sharedEntity_t *)other);
+                }
+
+                if (selfDim != otherDim) {
                     other->savedContents = other->r.contents;
                     other->r.contents = 0;
                     trap->LinkEntity((sharedEntity_t *)other);
@@ -2440,7 +2450,15 @@ void ClientThink_real(gentity_t *ent) {
                 qboolean themDueling = other->client->ps.duelInProgress;
                 int themDuelist = other->client->ps.duelIndex;
 
+                int selfDim = ent->playerState->eFlags & EF_ALT_DIM;
+                int otherDim = other->client->ps.eFlags & EF_ALT_DIM;
+
                 if ((selfDueling && i != selfDuelist) || (themDueling && themDuelist != selfNum)) {
+                    other->r.contents = other->savedContents;
+                    trap->LinkEntity((sharedEntity_t *)other);
+                }
+
+                if (selfDim != otherDim) {
                     other->r.contents = other->savedContents;
                     trap->LinkEntity((sharedEntity_t *)other);
                 }
