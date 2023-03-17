@@ -884,8 +884,13 @@ const char	*SkipWhitespace( const char *data, qboolean *hasNewLines );
 char		*COM_Parse( const char **data_p );
 char		*COM_ParseExt( const char **data_p, qboolean allowLineBreak );
 ptrdiff_t	COM_Compress( char *data_p );
+#ifdef _WINDOWS_
+void		COM_ParseError(char* format, ...);
+void		COM_ParseWarning(char* format, ...);
+#else
 void		COM_ParseError( char *format, ... ) __attribute__ ((format (printf, 1, 2)));
 void		COM_ParseWarning( char *format, ... ) __attribute__ ((format (printf, 1, 2)));
+#endif
 qboolean	COM_ParseString( const char **data, const char **s );
 qboolean	COM_ParseInt( const char **data, int *i );
 qboolean	COM_ParseFloat( const char **data, float *f );
@@ -962,8 +967,13 @@ const char *Q_stristr( const char *s, const char *find );
 void Q_CleanString( char *string, uint32_t flags );
 void Q_ConvertLinefeeds( char *string );
 void Q_LerpColour( const vector4 *start, const vector4 *end, vector4 *out, float point );
+#ifdef _WINDOWS_
+void Com_sprintf(char* dest, int size, const char* fmt, ...);
+const char* va(const char* format, ...);
+#else
 void Com_sprintf( char *dest, int size, const char *fmt, ... ) __attribute__ ((format (printf, 3, 4)));
 const char *va( const char *format, ... ) __attribute__ ((format (printf, 1, 2)));
+#endif
 
 // 64-bit integers for global rankings interface
 // implemented as a struct for qvm compatibility
@@ -986,11 +996,21 @@ bool Info_NextPair( const char **s, infoPair_t *ip );
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
 #if defined( PROJECT_GAME ) || defined( PROJECT_CGAME ) || defined( PROJECT_UI )
-extern void( *Com_Error )(int level, const char *error, ...) __attribute__ ((format (printf, 2, 3)));
-extern void( *Com_Printf )(const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+	#ifdef _WINDOWS_
+	extern void(*Com_Error)(int level, const char* error, ...);
+	extern void(*Com_Printf)(const char* msg, ...);
+	#else
+	extern void( *Com_Error )(int level, const char *error, ...) __attribute__ ((format (printf, 2, 3)));
+	extern void( *Com_Printf )(const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
+	#endif
 #else
-void Q_CDECL Com_Error( int level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
-void Q_CDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+	#ifdef _WINDOWS_
+	void Q_CDECL Com_Error(int level, const char* error, ...);
+	void Q_CDECL Com_Printf(const char* msg, ...);
+	#else
+	void Q_CDECL Com_Error( int level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
+	void Q_CDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+	#endif
 #endif
 
 

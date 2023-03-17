@@ -26,7 +26,11 @@ namespace JPLua {
 		lua_State *L;
 	} ls;
 
+#ifdef _WINDOWS_
+	void DPrintf( const char* msg, ... );
+#else
 	void DPrintf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+#endif
 
 	// these all act on a given lua state
 	qboolean Call( lua_State *L, int argCount, int resCount );

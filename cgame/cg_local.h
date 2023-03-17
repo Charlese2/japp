@@ -1008,7 +1008,11 @@ void			CG_LoadingString( const char *s );
 void			CG_LoadingItem( int itemNum );
 void			CG_LoadingClient( int clientNum );
 void			CG_LoadMenus( const char *menuFile );
+#ifdef _WINDOWS_
+void			CG_LogPrintf(fileHandle_t fileHandle, const char* fmt, ...);
+#else
 void			CG_LogPrintf( fileHandle_t fileHandle, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
+#endif
 localEntity_t *	CG_MakeExplosion( vector3 *origin, vector3 *dir, qhandle_t hModel, int numframes, qhandle_t shader, int msec, qboolean isSprite, float scale,
 					uint32_t flags );
 void			CG_ManualEntityRender( centity_t *cent );
