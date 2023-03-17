@@ -61,6 +61,9 @@ namespace JPLua {
 
 		for ( int i = 0; i < JPLUA_EVENT_MAX; i++ ) {
 			if ( !Q_stricmp( listenerArg, eventNames[i].name ) ) {
+				if (ls.currentPlugin->eventListeners[i] != 0) {
+					luaL_unref(L, LUA_REGISTRYINDEX, ls.currentPlugin->eventListeners[i]);
+				}
 				ls.currentPlugin->eventListeners[i] = luaL_ref( L, LUA_REGISTRYINDEX );
 				return 0;
 			}
