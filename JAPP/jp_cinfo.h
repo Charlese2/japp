@@ -17,7 +17,7 @@
 #define CINFO_UNKNOWN02 (0x00004000u)
 #define CINFO_NEWDFAALT (0x00008000u)        // new alternate DFA
 #define CINFO_LEDGEGRAB (0x00010000u)        // TODO: allow ledge-grab
-#define CINFO_ALTDIM (0x00020000u)           // TODO: any jp_altDim is set
+#define CINFO_ALTDIM (0x00020000u)           // Alternate Dimension is enabled.
 #define CINFO_ALWAYSPICKUPWEAP (0x00040000u) // always allow picking up weapons, will just add ammo
 #define CINFO_CPMPHYSICS (0x00080000u)       // CPM style player physics
 #define CINFO_WEAPONROLL (0x00100000u)       // allow rolling with weapons

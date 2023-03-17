@@ -4164,6 +4164,10 @@ static qboolean CanDamage(gentity_t *targ, gentity_t *attacker, vector3 *origin)
             (targ->client && targ->client->ps.duelInProgress && targ->client->ps.duelIndex != attacker - g_entities)) {
             return qfalse;
         }
+
+        if (attacker->client && (targ->client->ps.eFlags & EF_ALT_DIM) != (attacker->client->ps.eFlags & EF_ALT_DIM)) {
+            return qfalse;
+        }
     }
     // use the midpoint of the bounds instead of the origin, because
     // bmodels may have their origin is 0,0,0

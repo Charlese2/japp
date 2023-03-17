@@ -125,6 +125,8 @@ static void CVU_Duel(void) { SetCInfo((g_privateDuel.bits & PRIVDUEL_WEAP), CINF
 
 static void CVU_Warmup(void) { level.warmupTime = -1; }
 
+static void CVU_AltDim(void) { SetCInfo(japp_altdim.integer, CINFO_ALTDIM); }
+
 static void CVU_BusyAttack(void) { SetCInfo(!japp_allowBusyAttack.integer, CINFO_NOBUSYATK); }
 
 static void CVU_Butterfly(void) { SetCInfo(!japp_allowButterfly.integer, CINFO_NOBUTTERFLY); }
