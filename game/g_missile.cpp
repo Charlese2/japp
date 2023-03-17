@@ -287,6 +287,10 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 	other = &g_entities[trace->entityNum];
 
+	if (ent == other || other->client && (ent->parent->s.eFlags & EF_ALT_DIM) != (other->client->ps.eFlags & EF_ALT_DIM)) {
+		return;
+	}
+
 	// check for bounce
 	if ( !other->takedamage &&
 		(ent->bounceCount > 0 || ent->bounceCount == -5) &&
@@ -809,7 +813,13 @@ void G_RunMissile( gentity_t *ent ) {
 	if(te->inuse &&  ((te->client && te->client->ps.duelInProgress && te->client->ps.duelIndex != ent->parent->s.number) ||
 	  (!Q_stricmp(te->classname, "lightsaber") && (g_entities[te->r.ownerNum].client->ps.duelInProgress) && (g_entities[te->r.ownerNum].client->ps.duelIndex != ent->parent->s.number )))){
 		  
-		VectorCopy( &tr.endpos, &ent->r.currentOrigin );
+		VectorAdd(&origin, &ent->s.pos.trDelta, &ent->r.currentOrigin);
+		passent = te->s.number;
+		continue;
+	}
+
+	if (te != ent && te->client && (ent->parent->s.eFlags & EF_ALT_DIM) != (te->client->ps.eFlags & EF_ALT_DIM)) {
+		VectorAdd(&origin, &ent->s.pos.trDelta, &ent->r.currentOrigin);
 		passent = te->s.number;
 		continue;
 	}

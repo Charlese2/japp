@@ -480,7 +480,7 @@ qboolean PM_ClientImpact( trace_t *trace ) {
 		gentity_t *other = &g_entities[entityNum];
 		qboolean themDueling = other->client->ps.duelInProgress;
 		int themDuelist = other->client->ps.duelIndex;
-		if ((pm_entSelf->playerState->eFlags & EF_ALT_DIM) != (other->client->ps.eFlags & EF_ALT_DIM))
+		if ((pm_entSelf->playerState->eFlags & EF_ALT_DIM) != (other->playerState->eFlags & EF_ALT_DIM))
 			return qtrue;
 #else // PROJECT_CGAME
 		qboolean themDueling = cg_entities[entityNum].currentState.bolt1;

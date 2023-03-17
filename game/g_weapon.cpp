@@ -2616,6 +2616,11 @@ static void WP_FireConcussionAlt( gentity_t *ent ) {//a rail-gun-like beam
 			continue;
 		}
 
+		if (traceEnt && traceEnt->playerState && (ent->playerState->eFlags & EF_ALT_DIM) != (traceEnt->playerState->eFlags & EF_ALT_DIM)) {
+			skip = tr.entityNum;
+			continue;
+		}
+			
 		// always render a shot beam, doing this the old way because I don't much feel like overriding the effect.
 		//NOTE: let's just draw one beam at the end
 		//tent = G_TempEntity( tr.endpos, EV_CONC_ALT_SHOT );
@@ -2819,6 +2824,10 @@ void WP_FireStunBaton( gentity_t *ent, qboolean alt_fire ) {
 		if ( ent->client && ent->client->ps.duelInProgress && ent->client->ps.duelIndex != tr_ent->s.number ) {
 			return;
 		}
+
+		if ((ent->playerState->eFlags & EF_ALT_DIM) != (tr_ent->playerState->eFlags & EF_ALT_DIM)) {
+			return;
+		}
 	}
 
 	if ( tr_ent && tr_ent->takedamage ) {
@@ -2908,6 +2917,10 @@ void WP_FireMelee( gentity_t *ent, qboolean alt_fire ) {
 			}
 
 			if ( ent->client && ent->client->ps.duelInProgress && ent->client->ps.duelIndex != tr_ent->s.number ) {
+				return;
+			}
+
+			if ((ent->playerState->eFlags & EF_ALT_DIM) != (tr_ent->playerState->eFlags & EF_ALT_DIM)) {
 				return;
 			}
 		}
