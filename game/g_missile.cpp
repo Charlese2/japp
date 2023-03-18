@@ -813,13 +813,13 @@ void G_RunMissile( gentity_t *ent ) {
 	if(te->inuse &&  ((te->client && te->client->ps.duelInProgress && te->client->ps.duelIndex != ent->parent->s.number) ||
 	  (!Q_stricmp(te->classname, "lightsaber") && (g_entities[te->r.ownerNum].client->ps.duelInProgress) && (g_entities[te->r.ownerNum].client->ps.duelIndex != ent->parent->s.number )))){
 		  
-		VectorAdd(&origin, &ent->s.pos.trDelta, &ent->r.currentOrigin);
+		VectorCopy(&origin, &ent->r.currentOrigin);
 		passent = te->s.number;
 		continue;
 	}
 
 	if (te != ent && te->client && (ent->parent->s.eFlags & EF_ALT_DIM) != (te->client->ps.eFlags & EF_ALT_DIM)) {
-		VectorAdd(&origin, &ent->s.pos.trDelta, &ent->r.currentOrigin);
+		VectorCopy(&origin, &ent->r.currentOrigin);
 		passent = te->s.number;
 		continue;
 	}
