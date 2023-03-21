@@ -4456,7 +4456,7 @@ static qboolean CanDamage( gentity_t *targ, gentity_t *attacker, vector3 *origin
 			return qfalse;
 		}
 
-		if (attacker->client && (targ->client->ps.eFlags & EF_ALT_DIM) != (attacker->client->ps.eFlags & EF_ALT_DIM)) {
+		else if (attacker->client && (targ->client->ps.eFlags & EF_ALT_DIM) != (attacker->client->ps.eFlags & EF_ALT_DIM)) {
 			return qfalse;
 		}
 	}

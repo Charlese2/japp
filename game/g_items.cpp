@@ -2887,6 +2887,7 @@ void G_RunItem( gentity_t *ent ) {
 	trace_t		tr;
 	uint32_t	contents;
 	int			mask;
+	gentity_t	*traceEnt;
 
 	// if groundentity has been set to -1, it may have been pushed off an edge
 	if ( ent->s.groundEntityNum == -1 ) {
@@ -2914,10 +2915,23 @@ void G_RunItem( gentity_t *ent ) {
 	}
 	trap->Trace( &tr, &ent->r.currentOrigin, &ent->r.mins, &ent->r.maxs, &origin, ent->r.ownerNum, mask, qfalse, 0, 0 );
 
-	VectorCopy( &tr.endpos, &ent->r.currentOrigin );
+	traceEnt = &g_entities[tr.entityNum];
 
-	if ( tr.startsolid ) {
-		tr.fraction = 0;
+	if (ent->parent && traceEnt->client && traceEnt->client->ps.duelInProgress && traceEnt->client->ps.duelIndex != ent->parent->s.number)
+	{
+		trap->Trace(&tr, &ent->r.currentOrigin, &ent->r.mins, &ent->r.maxs, &origin, tr.entityNum, mask, qfalse, 0, 0);
+		VectorCopy(&tr.endpos, &ent->r.currentOrigin);
+	}
+	else if (ent->parent && ent->parent->client && traceEnt->client && (ent->parent->client->ps.eFlags & EF_ALT_DIM) != (traceEnt->client->ps.eFlags & EF_ALT_DIM)) {
+		trap->Trace(&tr, &ent->r.currentOrigin, &ent->r.mins, &ent->r.maxs, &origin, tr.entityNum, mask, qfalse, 0, 0);
+		VectorCopy(&tr.endpos, &ent->r.currentOrigin);
+	}
+	else {
+		VectorCopy(&tr.endpos, &ent->r.currentOrigin);
+
+		if (tr.startsolid) {
+			tr.fraction = 0;
+		}
 	}
 
 	trap->LinkEntity( (sharedEntity_t *)ent );	// FIXME: avoid this for stationary?

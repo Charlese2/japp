@@ -227,9 +227,12 @@ gentity_t *CreateMissile( vector3 *org, vector3 *dir, float vel, int life, genti
 	missile->nextthink = level.time + life;
 	missile->think = G_FreeEntity;
 	missile->s.eType = ET_MISSILE;
-	missile->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	missile->r.svFlags = SVF_USE_CURRENT_ORIGIN | SVF_BROADCASTCLIENTS;
 	missile->parent = owner;
 	missile->r.ownerNum = owner->s.number;
+	if (owner->client && owner->client->ps.eFlags & EF_ALT_DIM) {
+		missile->s.eFlags |= EF_ALT_DIM;
+	}
 
 	if ( altFire ) {
 		missile->s.eFlags |= EF_ALT_FIRING;
@@ -281,13 +284,14 @@ void G_MissileBounceEffect( gentity_t *ent, vector3 *org, vector3 *dir ) {
 
 void WP_SaberBlockNonRandom( gentity_t *self, vector3 *hitloc, qboolean missileBlock );
 void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
-	gentity_t		*other;
+	gentity_t		*other, *owner;
 	qboolean		hitClient = qfalse;
 	qboolean		isKnockedSaber = qfalse;
 
 	other = &g_entities[trace->entityNum];
+	owner = &g_entities[other->r.ownerNum];
 
-	if (ent == other || other->client && (ent->parent->s.eFlags & EF_ALT_DIM) != (other->client->ps.eFlags & EF_ALT_DIM)) {
+	if ( owner && owner->client && (ent->parent->s.eFlags & EF_ALT_DIM) != (owner->client->ps.eFlags & EF_ALT_DIM) ) {
 		return;
 	}
 
@@ -733,11 +737,22 @@ killProj:
 void G_RunMissile( gentity_t *ent ) {
 	vector3		origin, groundSpot;
 	trace_t		tr;
-	int			passent;
+	int			passent, i;
 	qboolean	isKnockedSaber = qfalse;
 	
 	int traces = 3;
 	gentity_t *te;
+
+	for (i = 0; i < MAX_CLIENTS; i++) {
+		if (level.clients[i].pers.connected == CON_CONNECTED && (ent->s.eFlags & EF_ALT_DIM) == (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
+			Q_AddToBitflags(ent->r.broadcastClients, i, 32);
+		}
+		else
+		{
+			Q_RemoveFromBitflags(ent->r.broadcastClients, i, 32);
+		}
+		
+	}
 
 	if ( ent->neverFree && ent->s.weapon == WP_SABER && (ent->flags & FL_BOUNCE_HALF) ) {
 		isKnockedSaber = qtrue;
@@ -818,7 +833,7 @@ void G_RunMissile( gentity_t *ent ) {
 		continue;
 	}
 
-	if (te != ent && te->client && (ent->parent->s.eFlags & EF_ALT_DIM) != (te->client->ps.eFlags & EF_ALT_DIM)) {
+	else if (te != ent && te->client && (ent->parent->s.eFlags & EF_ALT_DIM) != (te->client->ps.eFlags & EF_ALT_DIM)) {
 		VectorCopy(&origin, &ent->r.currentOrigin);
 		passent = te->s.number;
 		continue;
@@ -852,6 +867,10 @@ void G_RunMissile( gentity_t *ent ) {
 		// not allowed to have hook out
 		Weapon_HookFree( ent );
 		return;
+	}
+
+	if (ent->parent && ent->parent->client && ent->parent->client->hook && ent->parent->client->ps.eFlags != ent->s.eFlags && !strcmp(ent->classname, "hook")) {
+		ent->s.eFlags = ent->parent->s.eFlags;
 	}
 
 	if ( tr.fraction != 1 ) {
@@ -939,7 +958,7 @@ gentity_t *fire_grapple( gentity_t *self, vector3 *start, vector3 *dir ) {
 	hook->nextthink = level.time + 10000;
 	hook->think = Weapon_HookFree;
 	hook->s.eType = ET_MISSILE;
-	hook->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	hook->r.svFlags |= SVF_USE_CURRENT_ORIGIN;
 	hook->s.weapon = WP_STUN_BATON;//WP_BRYAR_PISTOL
 	hook->r.ownerNum = self->s.number;
 	hook->methodOfDeath = MOD_STUN_BATON;

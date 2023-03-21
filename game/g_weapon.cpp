@@ -431,6 +431,14 @@ static void WP_DisruptorMainFire( gentity_t *ent ) {
 			continue;
 		}
 
+		else if (traceEnt && traceEnt->client && (ent->client->ps.eFlags & EF_ALT_DIM) != (traceEnt->client->ps.eFlags & EF_ALT_DIM))
+		{
+			VectorCopy(&tr.endpos, &start);
+			ignore = tr.entityNum;
+			traces++;
+			continue;
+		}
+
 		if ( Jedi_DodgeEvasion( traceEnt, ent, &tr, G_GetHitLocation( traceEnt, &tr.endpos ) ) ) {
 			// act like we didn't even hit him
 			VectorCopy( &tr.endpos, &start );
@@ -635,6 +643,14 @@ void WP_DisruptorAltFire( gentity_t *ent ) {
 		{
 			skip = tr.entityNum;
 			VectorCopy( &tr.endpos, &start );
+			continue;
+		}
+
+		else if (traceEnt && traceEnt->client &&
+			(ent->client->ps.eFlags & EF_ALT_DIM) != (traceEnt->client->ps.eFlags & EF_ALT_DIM))
+		{
+			skip = tr.entityNum;
+			VectorCopy(&tr.endpos, &start);
 			continue;
 		}
 
@@ -1025,6 +1041,18 @@ void DEMP2_AltRadiusDamage( gentity_t *ent ) {
 			continue;
 		}
 
+		if (gent && gent->client &&
+			gent->client->ps.duelInProgress && gent->client->ps.duelIndex != myOwner->s.number)
+		{
+			continue;
+		}
+
+		else if (gent && gent->client && myOwner->client &&
+			(myOwner->client->ps.eFlags & EF_ALT_DIM) != (gent->client->ps.eFlags & EF_ALT_DIM))
+		{
+			continue;
+		}
+
 		// find the distance from the edge of the bounding box
 		for ( i = 0; i < 3; i++ ) {
 			if ( ent->r.currentOrigin.raw[i] < gent->r.absmin.raw[i] ) {
@@ -1125,10 +1153,11 @@ void DEMP2_AltDetonate( gentity_t *ent ) {
 static void WP_DEMP2_AltFire( gentity_t *ent ) {
 	int		damage = DEMP2_ALT_DAMAGE;
 	int		count, origcount;
+	int		passent;
 	float	fact;
 	vector3	start, end;
 	trace_t	tr;
-	gentity_t *missile;
+	gentity_t *missile, *traceEnt;
 
 	VectorCopy( &muzzle, &start );
 
@@ -1156,6 +1185,24 @@ static void WP_DEMP2_AltFire( gentity_t *ent ) {
 	}
 
 	trap->Trace( &tr, &start, NULL, NULL, &end, ent->s.number, MASK_SHOT, qfalse, 0, 0 );
+
+	traceEnt = &g_entities[tr.entityNum];
+
+	if (traceEnt && traceEnt->client &&
+		traceEnt->client->ps.duelInProgress && traceEnt->client->ps.duelIndex != ent->s.number)
+	{
+		passent = tr.entityNum;
+		start = tr.endpos;
+		trap->Trace(&tr, &start, NULL, NULL, &end, passent, MASK_SHOT, qfalse, 0, 0);
+	}
+
+	else if (traceEnt && traceEnt->client &&
+		(traceEnt->client->ps.eFlags & EF_ALT_DIM) != (ent->client->ps.eFlags & EF_ALT_DIM))
+	{
+		passent = tr.entityNum;
+		start = tr.endpos;
+		trap->Trace(&tr, &start, NULL, NULL, &end, passent, MASK_SHOT, qfalse, 0, 0);
+	}
 
 	missile = G_Spawn();
 	G_SetOrigin( missile, &tr.endpos );
@@ -1904,6 +1951,10 @@ void laserTrapDelayedExplode( gentity_t *self, gentity_t *inflictor, gentity_t *
 }
 
 void touchLaserTrap( gentity_t *ent, gentity_t *other, trace_t *trace ) {
+	if (other && other->client && ent->parent && other->client->ps.duelInProgress && other->client->ps.duelIndex != ent->parent->s.number)
+		return;
+	else if (other && other->client && ent->parent && ent->parent->client && (ent->parent->client->ps.eFlags & EF_ALT_DIM) != (other->client->ps.eFlags & EF_ALT_DIM))
+		return;
 	if ( other && other->s.number < ENTITYNUM_WORLD ) {
 		// just explode if we hit any entity. This way we don't have things happening like tripmines floating in the air
 		//	after getting stuck to a moving door
@@ -1947,6 +1998,12 @@ void proxMineThink( gentity_t *ent ) {
 			&& cl->client->sess.sessionTeam != TEAM_SPECTATOR && cl->client->tempSpectate < level.time
 			&& cl->health > 0 )
 		{
+			if (cl->client->ps.duelInProgress && cl->client->ps.duelIndex != owner->s.number)
+				continue;
+
+			else if ((owner->s.eFlags & EF_ALT_DIM) != (cl->client->ps.eFlags & EF_ALT_DIM))
+				continue;
+
 			if ( !OnSameTeam( owner, cl ) || g_friendlyFire.integer ) {
 				// not on the same team, or friendly fire is enabled
 				vector3 v;
@@ -2616,7 +2673,7 @@ static void WP_FireConcussionAlt( gentity_t *ent ) {//a rail-gun-like beam
 			continue;
 		}
 
-		if (traceEnt && traceEnt->playerState && (ent->playerState->eFlags & EF_ALT_DIM) != (traceEnt->playerState->eFlags & EF_ALT_DIM)) {
+		else if (traceEnt && traceEnt->playerState && (ent->playerState->eFlags & EF_ALT_DIM) != (traceEnt->playerState->eFlags & EF_ALT_DIM)) {
 			skip = tr.entityNum;
 			continue;
 		}
@@ -2825,7 +2882,7 @@ void WP_FireStunBaton( gentity_t *ent, qboolean alt_fire ) {
 			return;
 		}
 
-		if ((ent->playerState->eFlags & EF_ALT_DIM) != (tr_ent->playerState->eFlags & EF_ALT_DIM)) {
+		else if ((ent->playerState->eFlags & EF_ALT_DIM) != (tr_ent->playerState->eFlags & EF_ALT_DIM)) {
 			return;
 		}
 	}
@@ -2920,7 +2977,7 @@ void WP_FireMelee( gentity_t *ent, qboolean alt_fire ) {
 				return;
 			}
 
-			if ((ent->playerState->eFlags & EF_ALT_DIM) != (tr_ent->playerState->eFlags & EF_ALT_DIM)) {
+			else if ((ent->playerState->eFlags & EF_ALT_DIM) != (tr_ent->playerState->eFlags & EF_ALT_DIM)) {
 				return;
 			}
 		}

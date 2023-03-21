@@ -84,6 +84,21 @@ void G_RunObject( gentity_t *ent ) {
 	// ignoring interactions with the missile owner
 	trap->Trace( &tr, &ent->r.currentOrigin, &ent->r.mins, &ent->r.maxs, &origin, ent->parent ? ent->parent->s.number : ent->s.number, ent->clipmask, qfalse, 0, 0 );
 
+	traceEnt = &g_entities[tr.entityNum];
+
+	if (ent->parent && traceEnt && traceEnt->client && traceEnt->client->ps.duelInProgress && traceEnt->client->ps.duelIndex != ent->parent->s.number) 
+	{
+		VectorCopy(&tr.endpos, &ent->r.currentOrigin);
+		trap->Trace(&tr, &ent->r.currentOrigin, &ent->r.mins, &ent->r.maxs, &origin, tr.entityNum, ent->clipmask, qfalse, 0, 0);
+	}
+
+
+	else if (ent->parent && traceEnt && traceEnt->client && (ent->parent->s.eFlags & EF_ALT_DIM) != (traceEnt->client->ps.eFlags & EF_ALT_DIM)) 
+	{
+		VectorCopy(&tr.endpos, &ent->r.currentOrigin);
+		trap->Trace(&tr, &ent->r.currentOrigin, &ent->r.mins, &ent->r.maxs, &origin, tr.entityNum, ent->clipmask, qfalse, 0, 0);
+	}
+
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction ) {
 		VectorCopy( &tr.endpos, &ent->r.currentOrigin );
 		trap->LinkEntity( (sharedEntity_t *)ent );
