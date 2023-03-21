@@ -2425,9 +2425,7 @@ void ClientThink_real(gentity_t *ent) {
                     other->savedContents = other->r.contents;
                     other->r.contents = 0;
                     trap->LinkEntity((sharedEntity_t *)other);
-                }
-
-                if (ent->playerState && other->playerState && (ent->playerState->eFlags & EF_ALT_DIM) != (other->playerState->eFlags & EF_ALT_DIM)) {
+                } else if (ent->playerState && other->playerState && (ent->playerState->eFlags & EF_ALT_DIM) != (other->playerState->eFlags & EF_ALT_DIM)) {
                     other->savedContents = other->r.contents;
                     other->r.contents = 0;
                     trap->LinkEntity((sharedEntity_t *)other);
@@ -2453,9 +2451,7 @@ void ClientThink_real(gentity_t *ent) {
                 if ((selfDueling && i != selfDuelist) || (themDueling && themDuelist != selfNum)) {
                     other->r.contents = other->savedContents;
                     trap->LinkEntity((sharedEntity_t *)other);
-                }
-
-                if (selfDim != otherDim) {
+                } else if (selfDim != otherDim) {
                     other->r.contents = other->savedContents;
                     trap->LinkEntity((sharedEntity_t *)other);
                 }
