@@ -1,26 +1,28 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# fetch arguments
-ARGS=($@)
-ARGSLEN=${#ARGS[@]}
+cd "$(dirname "$0")"
 
 # options
-PROJECT=game,cgame,ui
-TOOLS=default
-DEBUG=0
-FORCE32=0
-NOSQL=1
-NONOTIFY=0
-NOCRASHHANDLER=0
-NOGEOIP=0
-USE_ASAN=0
-export NO_SSE=1
+: "${PROJECT:=game,cgame,ui}"
+: "${TOOLS:=default}"
+: "${DEBUG:=0}"
+: "${FORCE32:=0}"
+: "${NOSQL:=1}"
+: "${NONOTIFY:=0}"
+: "${NOCRASHHANDLER:=0}"
+: "${NOGEOIP:=0}"
+: "${USE_ASAN:=0}"
+export NO_SSE="${NO_SSE:=1}"
 
-build='scons -Q'
+build="scons -Q"
 
-for (( i=0; i<${ARGSLEN}; i++ ));
-do
-	case ${ARGS[$i]} in
+ARGS=("$@")
+for ((i = 0; i < ${#ARGS[@]}; i++)); do
+	case ${ARGS[$i],,} in
+	"release")
+		DEBUG=0
+		;;
 	"debug")
 		DEBUG=1
 		;;
@@ -28,11 +30,11 @@ do
 		DEBUG=2
 		;;
 	"analyse")
-		build='scan-build $build'
+		build="scan-build \$build"
 		;;
-		"use_asan")
-			USE_ASAN=1
-			;;
+	"use_asan")
+		USE_ASAN=1
+		;;
 	"force32")
 		FORCE32=1
 		;;
@@ -48,9 +50,18 @@ do
 	"nogeoip")
 		NOGEOIP=1
 		;;
-	*)
-		;;
+	*) ;;
+
 	esac
 done
 
-$build debug=$DEBUG force32=$FORCE32 no_sql=$NOSQL no_notify=$NONOTIFY no_crashhandler=$NOCRASHHANDLER no_geoip=$NOGEOIP use_asan=$USE_ASAN project=$PROJECT tools=$TOOLS
+$build \
+	"debug=$DEBUG" \
+	"force32=$FORCE32" \
+	"no_crashhandler=$NOCRASHHANDLER" \
+	"no_geoip=$NOGEOIP" \
+	"no_notify=$NONOTIFY" \
+	"no_sql=$NOSQL" \
+	"project=$PROJECT" \
+	"tools=$TOOLS" \
+	"use_asan=$USE_ASAN"
