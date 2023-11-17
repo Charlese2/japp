@@ -354,9 +354,24 @@ static void SV_Lua_f(void) {
 }
 
 static void SV_LuaReload_f(void) {
-    // FIXME: reload per plugin
-    JPLua::Shutdown(qtrue);
-    JPLua::Init();
+
+    if (trap->Argc() == 1) {
+        // just reload everything
+        JPLua::Shutdown(qtrue);
+        JPLua::Init();
+        return;
+    }
+
+    char *args = ConcatArgs(1);
+    const char *delim = " ";
+    // FIXME: p is getting corrupted somehow, and then tries to load a plugin with that corrupted name
+    for (char *p = strtok(args, delim); p; p = strtok(NULL, delim)) {
+        JPLua::plugin_t *plugin = JPLua::FindPlugin(p);
+        if (plugin) {
+            JPLua::DisablePlugin(plugin);
+            JPLua::EnablePlugin(plugin);
+        }
+    }
 }
 
 static void SV_LuaListPlugins_f(void) {

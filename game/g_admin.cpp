@@ -2690,9 +2690,24 @@ static void AM_ReloadLua(gentity_t *ent) {
         return;
     }
 
-    G_LogPrintf(level.log.admin, "\t%s reloaded JPLua\n", G_PrintClient(ent));
-    JPLua::Shutdown(qtrue);
-    JPLua::Init();
+    if (trap->Argc() == 1) {
+        G_LogPrintf(level.log.admin, "\t%s reloaded JPLua\n", G_PrintClient(ent));
+        JPLua::Shutdown(qtrue);
+        JPLua::Init();
+    }
+
+    char *args = ConcatArgs(1);
+    const char *delim = " ";
+    // FIXME: p is getting corrupted somehow, and then tries to load a plugin with that corrupted name
+    for (char *p = strtok(args, delim); p; p = strtok(NULL, delim)) {
+        JPLua::plugin_t *plugin = JPLua::FindPlugin(p);
+        if (plugin) {
+            G_LogPrintf(level.log.admin, "\t%s reloaded JPLua plugin \"%s\" (%s)\n", G_PrintClient(ent), plugin->longname, plugin->name);
+            JPLua::DisablePlugin(plugin);
+            JPLua::EnablePlugin(plugin);
+        }
+    }
+
 #else
     AM_ConsolePrint(ent, "Lua is not supported on this server\n");
 #endif
