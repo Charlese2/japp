@@ -279,6 +279,7 @@ qboolean Board(Vehicle_t *pVeh, bgEntity_t *pEnt) {
             ent->client->ps.m_iVehicleNum = ent->s.m_iVehicleNum;
         }
         if (pVeh->m_pPilot == (bgEntity_t *)ent) {
+            parent->playerState->eFlags |= ent->playerState->eFlags & EF_ALT_DIM;
             parent->r.ownerNum = ent->s.number;
             parent->s.owner = parent->r.ownerNum; // for prediction
         }
@@ -1147,6 +1148,14 @@ static qboolean Update(Vehicle_t *pVeh, const usercmd_t *pUmcd) {
                     G_Damage(parent, parent, parent, NULL, &parent->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
                 }
             }
+        }
+    }
+
+    for (i = 0; i < MAX_CLIENTS; i++) {
+        if (level.clients[i].pers.connected == CON_CONNECTED && (parent->s.eFlags & EF_ALT_DIM) == (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
+            Q_AddToBitflags(parent->r.broadcastClients, i, 32);
+        } else {
+            Q_RemoveFromBitflags(parent->r.broadcastClients, i, 32);
         }
     }
 #endif

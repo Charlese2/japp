@@ -903,7 +903,7 @@ void G_UpdateClientBroadcasts(gentity_t *self) {
     self->r.broadcastClients[0] = 0u;
     self->r.broadcastClients[1] = 0u;
 
-    if (self->client->pers.adminData.isGhost || japp_antiWallhack.integer) {
+    if (self->client->pers.adminData.isGhost || japp_antiWallhack.integer || self->classname == "NPC_Vehicle") {
         self->r.svFlags |= SVF_BROADCASTCLIENTS;
     } else {
         self->r.svFlags &= ~SVF_BROADCASTCLIENTS;

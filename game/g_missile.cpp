@@ -227,6 +227,11 @@ gentity_t *CreateMissile(vector3 *org, vector3 *dir, float vel, int life, gentit
         missile->s.eFlags |= EF_ALT_DIM;
     }
 
+    if (owner->m_pVehicle && owner->m_pVehicle->m_pPilot && owner->m_pVehicle->m_pPilot->s.eFlags & EF_ALT_DIM)
+    {
+        missile->s.eFlags |= EF_ALT_DIM;
+    }
+
     if (altFire) {
         missile->s.eFlags |= EF_ALT_FIRING;
     }
