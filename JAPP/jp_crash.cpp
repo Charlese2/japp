@@ -929,7 +929,7 @@ static LONG WINAPI UnhandledExceptionHandler(struct _EXCEPTION_POINTERS *EI /*Ex
     Com_Printf("Client crashed. Creating crash log %s...\n", filename);
 #endif
 
-    trap->FS_Open(filename, &f, FS_WRITE);
+    trap->FS_Open(filename, &f, FS_APPEND_SYNC);
 
     Q_FSWriteString(f, "========================================\n"
                        "             JA++ Crash Log\n"
