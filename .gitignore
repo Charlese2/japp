@@ -3,6 +3,12 @@
 build/
 .sconsign.dblite
 compile_commands.json
+*.lib
+
+.vs/
+*.log
+*.exp
+*.vcxproj*
 
 # build results
 *.dll
@@ -10,6 +16,7 @@ compile_commands.json
 *.pk3
 *.so
 *.zip
+*.pdb
 
 # OS clutter
 .DS_Store
