@@ -287,7 +287,7 @@ void G_MissileImpact(gentity_t *ent, trace_t *trace) {
     other = &g_entities[trace->entityNum];
     owner = &g_entities[other->r.ownerNum];
 
-    if ( owner && owner->client && (ent->parent->s.eFlags & EF_ALT_DIM) != (owner->client->ps.eFlags & EF_ALT_DIM) ) {
+    if (owner && owner->client && ent->parent && (ent->parent->s.eFlags & EF_ALT_DIM) != (owner->client->ps.eFlags & EF_ALT_DIM)) {
         return;
     }
 
@@ -773,7 +773,7 @@ void G_RunMissile(gentity_t *ent) {
         continue;
     }
 
-    else if (te != ent && te->client && (ent->parent->s.eFlags & EF_ALT_DIM) != (te->client->ps.eFlags & EF_ALT_DIM)) {
+    else if (te != ent && te->client && ent->parent && (ent->parent->s.eFlags & EF_ALT_DIM) != (te->client->ps.eFlags & EF_ALT_DIM)) {
         VectorCopy(&origin, &ent->r.currentOrigin);
         passent = te->s.number;
         continue;
