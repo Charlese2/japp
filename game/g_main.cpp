@@ -12,6 +12,8 @@
 
 #include "bg_threading.h"
 
+#include <unordered_map>
+
 level_locals_t level;
 
 int eventClearTime = 0;
@@ -193,6 +195,22 @@ typedef struct cvarTable_s {
     qboolean trackChange; // track this variable, and announce if changed
 } cvarTable_t;
 
+class cvarTable {
+  public:
+    vmCvar_t *vmCvar;
+    std::string cvarName, defaultString;
+    void (*update)(void);
+    uint32_t cvarFlags;
+    qboolean trackChange; // track this variable, and announce if changed
+
+    cvarTable() {
+        vmCvar = nullptr;
+        update = nullptr;
+        cvarFlags = 0;
+        trackChange = 0;
+    };
+};
+
 #define XCVAR_DECL
 #include "g_xcvar.h"
 #undef XCVAR_DECL
@@ -217,9 +235,22 @@ const char *G_Cvar_DefaultString(const vmCvar_t *vmCvar) {
     return NULL;
 }
 
+std::unordered_map<std::string, cvarTable> lua_cvars;
+
+extern void G_RegisterLuaCvar(vmCvar_t *vmCvar, const char *varName, const char *defaultValue, uint32_t flags);
+void G_RegisterLuaCvar(vmCvar_t* vmCvar, const char* varName, const char* defaultValue, uint32_t flags) {
+    cvarTable table{};
+    table.vmCvar = vmCvar;
+    table.cvarName.assign(varName);
+    table.defaultString.assign(defaultValue);
+    table.cvarFlags = flags;
+    lua_cvars[varName] = table;
+}
+
 void G_RegisterCvars(void) {
     int i = 0;
     cvarTable_t *cv = NULL;
+    lua_cvars.clear();
 
     // register all cvars
     for (i = 0, cv = gameCvarTable; i < gameCvarTableSize; i++, cv++)
@@ -263,10 +294,23 @@ void G_UpdateCvars(void) {
                     cv->update();
                 }
 
-                JPLua::Cvar_Update(cv->cvarName);
-
                 if (cv->trackChange) {
                     trap->SendServerCommand(-1, va("print \"Server: %s changed to %s\n\"", cv->cvarName, cv->vmCvar->string));
+                }
+            }
+        }
+    }
+
+    for (const auto &pair : lua_cvars) {
+        auto table = pair.second;
+        if (table.vmCvar) {
+            int modCount = table.vmCvar->modificationCount;
+            trap->Cvar_Update(table.vmCvar);
+            if (table.vmCvar->modificationCount != modCount) {
+                JPLua::Cvar_Update(table.cvarName.c_str());
+
+                if (table.trackChange) {
+                    trap->SendServerCommand(-1, va("print \"Server: %s changed to %s\n\"", table.cvarName.data(), table.vmCvar->string));
                 }
             }
         }

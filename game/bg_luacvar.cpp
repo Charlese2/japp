@@ -8,10 +8,20 @@
 #ifdef JPLUA
 
 #include <unordered_map>
+#include <array>
+
+#ifdef PROJECT_GAME
+extern void G_RegisterLuaCvar(vmCvar_t *vmCvar, const char *varName, const char *defaultValue, uint32_t flags);
+#endif
 
 namespace JPLua {
 
 static const char CVAR_META[] = "Cvar.meta";
+
+size_t luaCvarNextIndex = 0;
+std::array<vmCvar_t, 6000> luaVmCvars{};
+std::unordered_map<std::string, vmCvar_t*> luaCvarMap;
+std::unordered_map<std::string, std::shared_ptr<plugin_t>> luaCvarNameToPlugin;
 
 // Func: CreateCvar(name [, value [, flags] ])
 // Retn: An Cvar object, creating one if necessary
@@ -19,8 +29,24 @@ int CreateCvar(lua_State *L) {
     StackCheck st(L);
 
     const char *name = lua_tostring(L, 1);
+    if (luaCvarNextIndex >= luaVmCvars.size()) {
+        return 0;
+    }
 
-    trap->Cvar_Register(NULL, name, lua_tostring(L, 2), lua_tointeger(L, 3));
+    vmCvar_t *lua_vmCvar = luaCvarMap[name];
+
+    if (lua_vmCvar == nullptr) {
+        lua_vmCvar = &luaVmCvars[luaCvarNextIndex];
+        luaCvarNextIndex++;
+        luaCvarMap[name] = lua_vmCvar;
+        luaCvarNameToPlugin[name] = ls.currentPlugin;
+    }
+
+    trap->Cvar_Register(lua_vmCvar, name, lua_tostring(L, 2), lua_tointeger(L, 3));
+
+#ifdef PROJECT_GAME
+    G_RegisterLuaCvar(lua_vmCvar, name, lua_tostring(L, 2), lua_tointeger(L, 3));
+#endif // PROJECT_GAME
 
     Cvar_CreateRef(L, name);
 
@@ -179,8 +205,21 @@ static int Cvar_SetCallback(lua_State *L) {
     return 0;
 }
 
+static int Cvar_RemoveCallback(lua_State *L) {
+    luaCvar_t *luaCvar = CheckCvar(L, 1);
+
+    if (luaCvar) {
+        updateList.erase(luaCvar->name);
+    }
+    return 0;
+}
+
 void Cvar_Update(const char *name) {
     if (!name) {
+        return;
+    }
+    if (luaCvarNameToPlugin[name] && !luaCvarNameToPlugin[name]->enabled) {
+        updateList.erase(name);
         return;
     }
     int handle = updateList[name];
@@ -226,6 +265,7 @@ static const struct luaL_Reg luaCvarMeta[] = {{"__tostring", Cvar_ToString},
                                               {"Reset", Cvar_Reset},
                                               {"Set", Cvar_Set},
                                               {"SetUpdateCallback", Cvar_SetCallback},
+                                              {"RemoveUpdateCallback", Cvar_RemoveCallback},
                                               {NULL, NULL}};
 
 // Register the Cvar class for Lua
