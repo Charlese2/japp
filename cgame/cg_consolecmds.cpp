@@ -10,6 +10,7 @@
 
 #define __STDC_FORMAT_MACROS // older compilers need this
 #include <inttypes.h>
+#include <memory>
 
 void CG_TargetCommand_f(void) {
     int targetNum;
@@ -279,7 +280,7 @@ void CG_LuaLoad_f(void) {
     for (int i = 1; i < argc; i++) {
         char pluginName[32];
         trap->Cmd_Argv(i, pluginName, sizeof(pluginName));
-        JPLua::plugin_t *plugin = JPLua::FindPlugin(pluginName);
+        std::shared_ptr<JPLua::plugin_t> plugin = JPLua::FindPlugin(pluginName);
         if (plugin) {
             JPLua::EnablePlugin(plugin);
         }
@@ -299,7 +300,7 @@ void CG_LuaReload_f(void) {
     const char *delim = " ";
     // FIXME: p is getting corrupted somehow, and then tries to load a plugin with that corrupted name
     for (char *p = strtok(args, delim); p; p = strtok(NULL, delim)) {
-        JPLua::plugin_t *plugin = JPLua::FindPlugin(p);
+        std::shared_ptr<JPLua::plugin_t> plugin = JPLua::FindPlugin(p);
         if (plugin) {
             JPLua::DisablePlugin(plugin);
             JPLua::EnablePlugin(plugin);
@@ -315,7 +316,7 @@ void CG_LuaUnload_f(void) {
 
     char pluginName[32];
     trap->Cmd_Argv(1, pluginName, sizeof(pluginName));
-    JPLua::plugin_t *plugin = JPLua::FindPlugin(pluginName);
+    std::shared_ptr<JPLua::plugin_t> plugin = JPLua::FindPlugin(pluginName);
     if (plugin) {
         JPLua::DisablePlugin(plugin);
     }

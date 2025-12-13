@@ -366,7 +366,7 @@ static void SV_LuaReload_f(void) {
     const char *delim = " ";
     // FIXME: p is getting corrupted somehow, and then tries to load a plugin with that corrupted name
     for (char *p = strtok(args, delim); p; p = strtok(NULL, delim)) {
-        JPLua::plugin_t *plugin = JPLua::FindPlugin(p);
+        std::shared_ptr<JPLua::plugin_t> plugin = JPLua::FindPlugin(p);
         if (plugin) {
             JPLua::DisablePlugin(plugin);
             JPLua::EnablePlugin(plugin);
@@ -389,7 +389,7 @@ static void SV_LuaEnablePlugin(void) {
     trap->Argv(1, name, sizeof(name));
     if (!name[0])
         return;
-    JPLua::plugin_t *plg = JPLua::FindPlugin(name);
+    std::shared_ptr<JPLua::plugin_t> plg = JPLua::FindPlugin(name);
     if (plg) {
         JPLua::EnablePlugin(plg);
     }
@@ -403,7 +403,7 @@ static void SV_LuaDisablePlugin(void) {
     trap->Argv(1, name, sizeof(name));
     if (!name[0])
         return;
-    JPLua::plugin_t *plg = JPLua::FindPlugin(name);
+    std::shared_ptr<JPLua::plugin_t> plg = JPLua::FindPlugin(name);
     if (plg) {
         JPLua::DisablePlugin(plg);
     }

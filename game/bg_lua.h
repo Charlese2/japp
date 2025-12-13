@@ -24,6 +24,7 @@
 #endif
 
 #include "semver/semver.h"
+#include <memory>
 
 namespace JPLua {
 
@@ -37,19 +38,19 @@ struct plugin_t {
     int handle;
     int eventListeners[JPLUA_EVENT_MAX]; // references to listener functions in lua stored in the registry
 
-    plugin_t *next;
+    std::shared_ptr<plugin_t> next;
 };
 
 // public API, no references to JPLua or Lua internals/types
 void Init(void);
 bool IsInitialised(void);
 void Shutdown(qboolean restart);
-qboolean IteratePlugins(plugin_t **plugin, bool ifActive = true);     // FIXME: hide type of plugin_t?
-qboolean IteratePluginsTemp(plugin_t **plugin, bool ifActive = true); // FIXME: hide type of plugin_t?
+qboolean IteratePlugins(std::shared_ptr<plugin_t> *plugin, bool ifActive = true); // FIXME: hide type of plugin_t?
+qboolean IteratePluginsTemp(std::shared_ptr<plugin_t> *plugin, bool ifActive = true); // FIXME: hide type of plugin_t?
 void ListPlugins(void);
-bool EnablePlugin(plugin_t *plugin);
-void DisablePlugin(plugin_t *plugin);
-plugin_t *FindPlugin(const char *const pluginName);
+bool EnablePlugin(std::shared_ptr<plugin_t> plugin);
+void DisablePlugin(std::shared_ptr<plugin_t> plugin);
+std::shared_ptr<plugin_t> FindPlugin(const char *const pluginName);
 void UpdateAutoload(void);
 const char *DoString(const char *str);
 

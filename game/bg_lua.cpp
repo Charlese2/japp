@@ -68,7 +68,7 @@ void UpdateAutoload(void) {
 }
 
 void ListPlugins(void) {
-    plugin_t *plugin = nullptr;
+    std::shared_ptr<plugin_t> plugin = nullptr;
     while (IteratePluginsTemp(&plugin, false)) {
         if (plugin->enabled) {
             trap->Print(S_COLOR_WHITE "  %s " S_COLOR_GREEN "v%i.%i.%i " S_COLOR_WHITE " (%s)\n", plugin->longname, plugin->version.major,
@@ -79,8 +79,8 @@ void ListPlugins(void) {
     }
 }
 
-plugin_t *FindPlugin(const char *const pluginName) {
-    plugin_t *plugin = nullptr;
+std::shared_ptr<plugin_t> FindPlugin(const char *const pluginName) {
+    std::shared_ptr<plugin_t> plugin = nullptr;
     while (IteratePlugins(&plugin, false)) {
         if (!Q_stricmp(plugin->name, pluginName)) {
             return plugin;
@@ -89,7 +89,7 @@ plugin_t *FindPlugin(const char *const pluginName) {
     return nullptr;
 }
 
-qboolean IteratePlugins(plugin_t **plugin, bool ifActive) {
+qboolean IteratePlugins(std::shared_ptr<plugin_t> *plugin, bool ifActive) {
     // ensure plugin exists
     if (!*plugin) {
         if (ls.plugins) {
@@ -113,7 +113,7 @@ qboolean IteratePlugins(plugin_t **plugin, bool ifActive) {
 }
 
 // stateless version of the above - does not set ls.currentPlugin
-qboolean IteratePluginsTemp(plugin_t **plugin, bool ifActive) {
+qboolean IteratePluginsTemp(std::shared_ptr<plugin_t> *plugin, bool ifActive) {
     // ensure plugin exists
     if (!*plugin) {
         if (ls.plugins) {
@@ -446,14 +446,14 @@ static int RegisterPlugin(lua_State *L) {
     return 1;
 }
 
-bool EnablePlugin(plugin_t *plugin) {
+bool EnablePlugin(std::shared_ptr<plugin_t> plugin) {
     if (plugin->enabled) {
         trap->Print(S_COLOR_YELLOW "plugin '%s' already loaded\n", plugin->name);
         return true;
     }
 
     // save the current plugin
-    plugin_t *current = ls.currentPlugin;
+    std::shared_ptr<plugin_t> current = ls.currentPlugin;
     ls.currentPlugin = plugin;
     const char *err;
     if ((err = LoadFile(ls.L, va("%s%s/%s", pluginDir, plugin->name, "plugin" JPLUA_EXTENSION)))) {
@@ -471,7 +471,7 @@ bool EnablePlugin(plugin_t *plugin) {
     return true;
 }
 
-void DisablePlugin(plugin_t *plugin) {
+void DisablePlugin(std::shared_ptr<plugin_t> plugin) {
     if (!plugin->enabled) {
         trap->Print(S_COLOR_YELLOW "plugin '%s' already unloaded\n", plugin->name);
     }
@@ -479,7 +479,7 @@ void DisablePlugin(plugin_t *plugin) {
     // call the unload event
     if (plugin->eventListeners[JPLUA_EVENT_UNLOAD]) {
         // save the current plugin
-        plugin_t *current = ls.currentPlugin;
+        std::shared_ptr<plugin_t> current = ls.currentPlugin;
         ls.currentPlugin = plugin;
         lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_UNLOAD]);
         lua_pushboolean(ls.L, qfalse);
@@ -539,8 +539,7 @@ static void TrackPlugin(const char *pluginName, const char *fileName) {
         return;
     }
 
-    plugin_t *plugin = (plugin_t *)malloc(sizeof(plugin_t));
-    memset(plugin, 0, sizeof(plugin_t));
+    std::shared_ptr<plugin_t> plugin = std::make_shared<plugin_t>();
     Q_strncpyz(plugin->longname, "<null>", sizeof(plugin->longname));
     Q_strncpyz(plugin->name, pluginName, sizeof(plugin->name));
     plugin->enabled = false;
@@ -554,8 +553,8 @@ static void TrackPlugin(const char *pluginName, const char *fileName) {
 
 // FIXME: add UntrackPlugin again
 #if 0
-	static void UntrackPlugin( plugin_t *plugin ) {
-		plugin_t *p = ls.plugins, *prev = nullptr;
+	static void UntrackPlugin( std::shared_ptr<plugin_t> plugin ) {
+		std::shared_ptr<plugin_t> p = ls.plugins, *prev = nullptr;
 		while ( p ) {
 			if ( p == plugin ) {
 				trap->Print( S_COLOR_CYAN "Untracking plugin " S_COLOR_YELLOW "%s (%s)\n", p->longname, p->name );
@@ -567,7 +566,7 @@ static void TrackPlugin(const char *pluginName, const char *fileName) {
 					//	the currently executing plugin, so we must preserve it during the unload event
 					// the other reason to switch it back is that this plugin no longer exists
 					// there is no concern in the case of no currently executing plugin
-					plugin_t *oldPlugin = ls.currentPlugin;
+					std::shared_ptr<plugin_t> oldPlugin = ls.currentPlugin;
 					ls.currentPlugin = p;
 
 					lua_rawgeti( ls.L, LUA_REGISTRYINDEX, p->eventListeners[JPLUA_EVENT_UNLOAD] );
@@ -587,7 +586,7 @@ static void TrackPlugin(const char *pluginName, const char *fileName) {
 				}
 
 				if ( prev ) {
-					plugin_t *next = p->next;
+					std::shared_ptr<plugin_t> next = p->next;
 					free( p );
 					p = nullptr;
 					prev->next = next;
@@ -648,7 +647,7 @@ static int System_Index(lua_State *L) {
     } else if (!strcmp(key, "plugins")) {
         lua_newtable(L);
         int top = lua_gettop(L), top2, count = 1;
-        plugin_t *plugin = NULL;
+        std::shared_ptr<plugin_t> plugin = nullptr;
         char buf[16] = {'\0'};
         while (IteratePluginsTemp(&plugin, false)) {
             lua_pushinteger(L, count++);
@@ -710,7 +709,7 @@ static void LoadPluginDir(qboolean inPK3) {
         size_t skipLenFolder = inPK3 ? 1 : 0, folderLen = 0;
         qboolean skip = qfalse;
         char *s;
-        plugin_t *plugin = NULL;
+        std::shared_ptr<plugin_t> plugin = nullptr;
 
         if (folderName[0] == '.') {
             skip = qtrue;
@@ -772,7 +771,7 @@ static void PostInit(lua_State *L) {
     LoadPluginDir(qtrue);
     LoadPluginDir(qfalse);
 
-    plugin_t *plugin = nullptr;
+    std::shared_ptr<plugin_t> plugin = nullptr;
     while (IteratePlugins(&plugin, false)) {
         if (autoload.all) {
             EnablePlugin(plugin);
@@ -1816,7 +1815,7 @@ bool IsInitialised(void) { return ls.L != nullptr; }
 void Shutdown(qboolean restart) {
 #ifdef JPLUA
     if (ls.L) {
-        plugin_t *nextPlugin = ls.plugins;
+        std::shared_ptr<plugin_t> nextPlugin = ls.plugins;
 
         Event_Shutdown(restart);
 #ifdef PROJECT_GAME
@@ -1835,7 +1834,6 @@ void Shutdown(qboolean restart) {
             luaL_unref(ls.L, LUA_REGISTRYINDEX, ls.currentPlugin->handle);
             nextPlugin = ls.currentPlugin->next;
 
-            free(ls.currentPlugin);
             ls.currentPlugin = nextPlugin;
         }
 

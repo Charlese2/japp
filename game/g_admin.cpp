@@ -2700,7 +2700,7 @@ static void AM_ReloadLua(gentity_t *ent) {
     const char *delim = " ";
     // FIXME: p is getting corrupted somehow, and then tries to load a plugin with that corrupted name
     for (char *p = strtok(args, delim); p; p = strtok(NULL, delim)) {
-        JPLua::plugin_t *plugin = JPLua::FindPlugin(p);
+        std::shared_ptr<JPLua::plugin_t> plugin = JPLua::FindPlugin(p);
         if (plugin) {
             G_LogPrintf(level.log.admin, "\t%s reloaded JPLua plugin \"%s\" (%s)\n", G_PrintClient(ent), plugin->longname, plugin->name);
             JPLua::DisablePlugin(plugin);

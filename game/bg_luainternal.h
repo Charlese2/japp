@@ -21,7 +21,7 @@ extern const char *baseDir;
 
 extern struct luaState_t {
     bool initialised;
-    plugin_t *plugins, *currentPlugin;
+    std::shared_ptr<plugin_t> plugins, currentPlugin;
 
     lua_State *L;
 } ls;
@@ -48,7 +48,7 @@ struct importTable_t {
 
 typedef struct command_s {
     int handle;
-    plugin_t *owner;
+    std::shared_ptr<plugin_t> owner;
 } command_t;
 
 class StackCheck {

@@ -112,7 +112,7 @@ int Event_RemoveListener(lua_State *L) {
 
 void Event_Shutdown(qboolean restart) {
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         // fire the unload event
         if (plugin->eventListeners[JPLUA_EVENT_UNLOAD]) {
@@ -129,7 +129,7 @@ void Event_RunFrame(void) {
     if (ls.L) {
         lua_gc(ls.L, LUA_GCSTEP, 1);
     }
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_RUNFRAME]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_RUNFRAME]);
@@ -146,7 +146,7 @@ char *Event_ChatMessageRecieved(int clientNum, const char *msg, int type) {
 #endif
     static char tmpMsg[MAX_SAY_TEXT] = {0};
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
 #endif
 
     Q_strncpyz(tmpMsg, msg, MAX_SAY_TEXT);
@@ -189,7 +189,7 @@ char *Event_ChatMessageRecieved(int clientNum, const char *msg, int type) {
 char *Event_ChatMessageSent(const char *msg, messageMode_e mode, int targetClient, const char *shortName, const char *identifier) {
     static char tmpMsg[MAX_STRING_CHARS] = {0}; // although a chat message can only be MAX_SAY_TEXT long..-name?
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
 #endif
 
     Q_strncpyz(tmpMsg, msg, sizeof(tmpMsg));
@@ -228,7 +228,7 @@ char *Event_ChatMessageSent(const char *msg, messageMode_e mode, int targetClien
 char *Event_ChatMessagePlugin(int clientNum, const char *msg) {
     static char tmpMsg[MAX_SAY_TEXT] = {0};
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
 #endif
 
     Q_strncpyz(tmpMsg, msg, MAX_SAY_TEXT);
@@ -265,7 +265,7 @@ char *Event_ChatMessagePlugin(int clientNum, const char *msg) {
 #ifdef PROJECT_GAME
 void Event_ClientBegin(int clientNum) {
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_CLIENTBEGIN]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_CLIENTBEGIN]);
@@ -287,7 +287,7 @@ qboolean Event_ClientCommand(int clientNum) {
     char cmd[MAX_TOKEN_CHARS] = {};
     trap->Argv(0, cmd, sizeof(cmd));
 
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_CLIENTCOMMAND]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_CLIENTCOMMAND]);
@@ -349,7 +349,7 @@ qboolean Event_ClientCommand(int clientNum) {
 const char *Event_ClientConnect(int clientNum, const char *userinfo, const char *IP, qboolean firstTime) {
     static char reason[MAX_STRING_CHARS];
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_CLIENTCONNECT]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_CLIENTCONNECT]);
@@ -387,7 +387,7 @@ const char *Event_ClientConnect(int clientNum, const char *userinfo, const char 
 #elif defined(PROJECT_CGAME)
 void Event_ClientConnect(int clientNum) {
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_CLIENTCONNECT]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_CLIENTCONNECT]);
@@ -404,7 +404,7 @@ void Event_ClientConnect(int clientNum) {
 #ifdef PROJECT_GAME
 void Event_ClientDisconnect(int clientNum) {
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_CLIENTDISCONNECT]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_CLIENTDISCONNECT]);
@@ -421,7 +421,7 @@ void Event_ClientDisconnect(int clientNum) {
 #ifdef PROJECT_CGAME
 void Event_ClientInfoUpdate(int clientNum, clientInfo_t *oldInfo, clientInfo_t *newInfo) {
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_CLIENTINFO]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_CLIENTINFO]);
@@ -547,7 +547,7 @@ void Event_ClientInfoUpdate(int clientNum, clientInfo_t *oldInfo, clientInfo_t *
 #ifdef PROJECT_GAME
 void Event_ClientSpawn(int clientNum, qboolean firstSpawn) {
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_CLIENTSPAWN]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_CLIENTSPAWN]);
@@ -565,7 +565,7 @@ void Event_ClientSpawn(int clientNum, qboolean firstSpawn) {
 qboolean Event_ClientUserinfoChanged(int clientNum, char *userinfo) {
     qboolean ret = qfalse;
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_CLIENTUSERINFOCHANGED]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_CLIENTUSERINFOCHANGED]);
@@ -598,7 +598,7 @@ uint32_t Event_HUD(void) {
     uint32_t events = 0u;
 
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_HUD]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_HUD]);
@@ -619,7 +619,7 @@ qboolean Event_VehicleHUD(void) {
     qboolean ret = qfalse;
 
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_VEHICLEHUD]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_VEHICLEHUD]);
@@ -641,7 +641,7 @@ qboolean Event_ConnectScreen(void) {
     qboolean ret = qfalse;
 
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_CONNECTSCREEN]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_CONNECTSCREEN]);
@@ -661,7 +661,7 @@ qboolean Event_ConnectScreen(void) {
 #if defined(PROJECT_GAME)
 void Event_Pain(int target, int inflictor, int attacker, int health, int armor, uint32_t dflags, int mod) {
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_PAIN]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_PAIN]);
@@ -682,7 +682,7 @@ void Event_Pain(int target, int inflictor, int attacker, int health, int armor, 
 #elif defined(PROJECT_CGAME)
 void Event_Pain(int clientNum, int health) {
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_PAIN]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_PAIN]);
@@ -706,7 +706,7 @@ bool Event_PlayerDeath(int clientNum, int mod, int inflictor) {
 #ifdef PROJECT_CGAME
     bool ret = false;
 #endif
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_PLAYERDEATH]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_PLAYERDEATH]);
@@ -742,7 +742,7 @@ bool Event_PlayerDeath(int clientNum, int mod, int inflictor) {
 #ifdef PROJECT_CGAME
 void Event_PrivateDuel(int number, int eventParm) {
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_PRIVATEDUEL]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_PRIVATEDUEL]);
@@ -760,7 +760,7 @@ void Event_PrivateDuel(int number, int eventParm) {
 #ifdef PROJECT_CGAME
 void Event_SaberTouch(int victim, int attacker, int eventParm) {
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_SABERTOUCH]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_SABERTOUCH]);
@@ -858,7 +858,7 @@ qboolean Event_ServerCommand(void) {
 qboolean Event_KeyDown(int key) {
     qboolean ret = qfalse;
 #ifdef JPLUA
-    plugin_t *plugin = NULL;
+    std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_KEYDOWN]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_KEYDOWN]);
