@@ -1136,6 +1136,11 @@ qboolean BG_CanUseFPNow(int gametype, playerState_t *ps, int time, forcePowers_t
             }
         }
     }
+    if (ps->eFlags & EF_ALT_DIM && power != FP_SABER_OFFENSE && power != FP_SABER_DEFENSE && power != FP_LEVITATION) {
+        if (!ps->saberLockFrame || power != FP_PUSH) {
+            return qfalse;
+        }
+    }
 
     if (ps->saberLockFrame || ps->saberLockTime > time) {
         if (power != FP_PUSH) {
