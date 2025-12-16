@@ -378,6 +378,10 @@ int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forc
         return 0;
     }
 
+    if (attacker && other && (other->s.eFlags & EF_ALT_DIM) != (attacker->s.eFlags & EF_ALT_DIM)) {
+        return 0;
+    }
+
     if (forcePower == FP_GRIP) {
         if (other && other->client && (other->client->ps.fd.forcePowersActive & (1 << FP_ABSORB))) { // don't allow gripping to begin with if they are absorbing
             // play sound indicating that attack was absorbed
