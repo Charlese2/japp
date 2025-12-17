@@ -286,6 +286,7 @@ qboolean Event_ClientCommand(int clientNum) {
     int top, numArgs = trap->Argc();
     char cmd[MAX_TOKEN_CHARS] = {};
     trap->Argv(0, cmd, sizeof(cmd));
+    Q_strlwr(cmd);
 
     std::shared_ptr<plugin_t> plugin = NULL;
     while (IteratePlugins(&plugin)) {
@@ -780,12 +781,14 @@ void Event_SaberTouch(int victim, int attacker, int eventParm) {
 qboolean Event_ConsoleCommand(void) {
     qboolean ret = qfalse;
 #ifdef JPLUA
-    command_t &cmd = consoleCommands[CG_Argv(0)];
+    std::string command_name = CG_Argv(0);
+    std::transform(command_name.begin(), command_name.end(), command_name.begin(), [](char character) { return std::tolower(character); });
+    command_t &cmd = consoleCommands[command_name];
     if (cmd.handle) {
 
         lua_rawgeti(ls.L, LUA_REGISTRYINDEX, cmd.handle);
 
-        lua_pushstring(ls.L, CG_Argv(0));
+        lua_pushstring(ls.L, command_name.data());
         // Push table of arguments
         lua_newtable(ls.L);
         int top = lua_gettop(ls.L);
@@ -811,6 +814,7 @@ qboolean Event_ServerCommand(void) {
     int top, i, numArgs = trap->Argc();
     char arg1[MAX_TOKEN_CHARS];
     trap->Argv(0, arg1, sizeof(arg1));
+    Q_strlwr(arg1);
     command_t &cmd = serverCommands[arg1];
     if (cmd.handle) {
         lua_rawgeti(ls.L, LUA_REGISTRYINDEX, cmd.handle);

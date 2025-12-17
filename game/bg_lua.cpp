@@ -787,12 +787,14 @@ static void PostInit(lua_State *L) {
 static int Export_AddClientCommand(lua_State *L) {
     StackCheck st(L);
 
-    const char *name = luaL_checkstring(L, 1);
+    std::string name = luaL_checkstring(L, 1);
+    std::transform(name.begin(), name.end(), name.begin(), [](unsigned char character) { return std::tolower(character); });
+
     command_t &cmd = clientCommands[name];
 
     if (cmd.handle) {
         // already exists
-        trap->Print("JPlua: AddClientCommand(%s) failed, command already exists. Remove command first\n", name);
+        trap->Print("JPlua: AddClientCommand(%s) failed, command already exists. Remove command first\n", name.data());
         return 0;
     }
 
@@ -804,11 +806,11 @@ static int Export_AddClientCommand(lua_State *L) {
             cmd.handle = luaL_ref(L, LUA_REGISTRYINDEX);
             cmd.owner = ls.currentPlugin;
         } else {
-            trap->Print("JPLua AddClientCommand(%s) failed, function signature invalid. Is it up to date?\n", name);
+            trap->Print("JPLua AddClientCommand(%s) failed, function signature invalid. Is it up to date?\n", name.data());
             return 0;
         }
     } else {
-        trap->Print("JPLua AddClientCommand(%s) failed, too many arguments\n", name);
+        trap->Print("JPLua AddClientCommand(%s) failed, too many arguments\n", name.data());
         return 0;
     }
 
@@ -821,11 +823,13 @@ static int Export_AddClientCommand(lua_State *L) {
 static int Export_AddConsoleCommand(lua_State *L) {
     StackCheck st(L);
 
-    const char *name = luaL_checkstring(L, 1);
+    std::string name = luaL_checkstring(L, 1);
+    std::transform(name.begin(), name.end(), name.begin(), [](unsigned char character) { return std::tolower(character); });
+
     command_t &cmd = consoleCommands[name];
     if (cmd.handle) {
         // already exists
-        trap->Print("JPlua: AddConsoleCommand(%s) failed, command already exists. Remove command first\n", name);
+        trap->Print("JPlua: AddConsoleCommand(%s) failed, command already exists. Remove command first\n", name.data());
         return 0;
     }
 
@@ -833,18 +837,18 @@ static int Export_AddConsoleCommand(lua_State *L) {
     int typeArg2 = lua_type(L, 2);
     if (top == 1 || (top == 2 && typeArg2 == LUA_TNIL)) {
         // add to autocomplete list
-        trap->AddCommand(name);
+        trap->AddCommand(name.data());
     } else if (top == 2) {
         if (typeArg2 == LUA_TFUNCTION) {
-            trap->AddCommand(name);
+            trap->AddCommand(name.data());
             cmd.handle = luaL_ref(L, LUA_REGISTRYINDEX);
             cmd.owner = ls.currentPlugin;
         } else {
-            trap->Print("JPLua AddConsoleCommand(%s) failed, function signature invalid. Is it up to date?\n", name);
+            trap->Print("JPLua AddConsoleCommand(%s) failed, function signature invalid. Is it up to date?\n", name.data());
             return 0;
         }
     } else {
-        trap->Print("JPLua AddConsoleCommand(%s) failed, too many arguments\n", name);
+        trap->Print("JPLua AddConsoleCommand(%s) failed, too many arguments\n", name.data());
         return 0;
     }
 
@@ -855,15 +859,17 @@ static int Export_AddConsoleCommand(lua_State *L) {
 static int Export_AddServerCommand(lua_State *L) {
     StackCheck st(L);
 
-    const char *name = luaL_checkstring(L, 1);
+    std::string name = luaL_checkstring(L, 1);
+    std::transform(name.begin(), name.end(), name.begin(), [](char character) { return std::tolower(character); });
+
     command_t &cmd = serverCommands[name];
     if (cmd.handle) {
         // already exists
-        trap->Print("JPlua: AddServerCommand(%s) failed, command already exists. Remove command first\n", name);
+        trap->Print("JPlua: AddServerCommand(%s) failed, command already exists. Remove command first\n", name.data());
     }
 
     if (lua_type(L, 2) != LUA_TFUNCTION) {
-        trap->Print("JPLua AddServerCommand(%s) failed, function signature invalid. Is it up to date?\n", name);
+        trap->Print("JPLua AddServerCommand(%s) failed, function signature invalid. Is it up to date?\n", name.data());
         return 0;
     }
 
