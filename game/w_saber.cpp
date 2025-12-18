@@ -90,6 +90,11 @@ qboolean G_CanBeEnemy(gentity_t *self, gentity_t *enemy) {
         return qfalse;
     }
 
+    if ((self->client->ps.eFlags & EF_ALT_DIM) != (enemy->client->ps.eFlags & EF_ALT_DIM)) {
+        // player not in the same dimension
+        return qfalse;
+    }
+
     if (level.gametype < GT_TEAM)
         return qtrue;
 
@@ -1240,6 +1245,10 @@ qboolean WP_SabersCheckLock(gentity_t *ent1, gentity_t *ent2) {
                 return qfalse;
             }
         }
+    }
+
+    if ((ent1->client->ps.eFlags & EF_ALT_DIM) != (ent2->client->ps.eFlags & EF_ALT_DIM)) {
+        return qfalse;
     }
 
     if (fabsf(ent1->r.currentOrigin.z - ent2->r.currentOrigin.z) > 16) {
@@ -3696,6 +3705,10 @@ static qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int rBladeNum, 
             return qfalse;
         }
 
+        if ((self->client->ps.eFlags & EF_ALT_DIM) != (otherOwner->client->ps.eFlags & EF_ALT_DIM)) {
+            return qfalse;
+        }
+
         if (g_debugSaberLocks.integer) {
             WP_SabersCheckLock2(self, otherOwner, LOCK_RANDOM);
             return qtrue;
@@ -4561,11 +4574,15 @@ static qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *saberOwn
     if (ent && ent->client && ent->inuse && ent->s.number != saberOwner->s.number && ent->health > 0 && ent->takedamage &&
         trap->InPVS(&ent->client->ps.origin, &saberent->r.currentOrigin) && ent->client->sess.sessionTeam != TEAM_SPECTATOR &&
         (ent->client->pers.connected || ent->s.eType == ET_NPC)) { // hit a client
-        if (ent->inuse && ent->client && ent->client->ps.duelInProgress && ent->client->ps.duelIndex != saberOwner->s.number) {
+        if (ent->client->ps.duelInProgress && ent->client->ps.duelIndex != saberOwner->s.number) {
             return qfalse;
         }
 
-        if (ent->inuse && ent->client && saberOwner->client->ps.duelInProgress && saberOwner->client->ps.duelIndex != ent->s.number) {
+        if (saberOwner->client->ps.duelInProgress && saberOwner->client->ps.duelIndex != ent->s.number) {
+            return qfalse;
+        }
+
+        if ((saberOwner->client->ps.eFlags & EF_ALT_DIM) != (ent->client->ps.eFlags & EF_ALT_DIM)) {
             return qfalse;
         }
 
@@ -4649,6 +4666,10 @@ static qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *saberOwn
         }
     } else if (ent && !ent->client && ent->inuse && ent->takedamage && ent->health > 0 && ent->s.number != saberOwner->s.number &&
                ent->s.number != saberent->s.number && (noDCheck || trap->InPVS(&ent->r.currentOrigin, &saberent->r.currentOrigin))) { // hit a non-client
+
+        if ((saberOwner->client->ps.eFlags & EF_ALT_DIM) != (ent->s.eFlags & EF_ALT_DIM)) {
+            return qfalse;
+        }
 
         if (noDCheck) {
             veclen = 0;

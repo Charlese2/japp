@@ -680,13 +680,13 @@ killProj:
 void G_RunMissile(gentity_t *ent) {
     vector3 origin, groundSpot;
     trace_t tr;
-    int passent, i;
+    int passent;
     qboolean isKnockedSaber = qfalse;
 
     int traces = 3;
     gentity_t *te;
 
-    for (i = 0; i < MAX_CLIENTS; i++) {
+    for (int i = 0; i < MAX_CLIENTS; i++) {
         if (level.clients[i].pers.connected == CON_CONNECTED && (ent->s.eFlags & EF_ALT_DIM) == (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
             Q_AddToBitflags(ent->r.broadcastClients, i, 32);
         }
@@ -763,21 +763,21 @@ void G_RunMissile(gentity_t *ent) {
 
         trap->LinkEntity((sharedEntity_t *)ent);
 
-    te = &g_entities[tr.entityNum];
-    if (te->inuse && ((te->client && te->client->ps.duelInProgress && te->client->ps.duelIndex != ent->parent->s.number) ||
-                      (!Q_stricmp(te->classname, "lightsaber") && (g_entities[te->r.ownerNum].client->ps.duelInProgress) && 
-                       (g_entities[te->r.ownerNum].client->ps.duelIndex != ent->parent->s.number)))) {
+        te = &g_entities[tr.entityNum];
+        if (te->inuse && ((te->client && te->client->ps.duelInProgress && te->client->ps.duelIndex != ent->parent->s.number) ||
+                          (!Q_stricmp(te->classname, "lightsaber") && (g_entities[te->r.ownerNum].client->ps.duelInProgress) &&
+                           (g_entities[te->r.ownerNum].client->ps.duelIndex != ent->parent->s.number)))) {
   
-        VectorCopy(&origin, &ent->r.currentOrigin);
-        passent = te->s.number;
-        continue;
-    }
+            VectorCopy(&origin, &ent->r.currentOrigin);
+            passent = te->s.number;
+            continue;
+        }
 
-    else if (te != ent && te->client && ent->parent && (ent->parent->s.eFlags & EF_ALT_DIM) != (te->client->ps.eFlags & EF_ALT_DIM)) {
-        VectorCopy(&origin, &ent->r.currentOrigin);
-        passent = te->s.number;
-        continue;
-    }
+        else if (te != ent && te->client && ent->parent && (ent->parent->s.eFlags & EF_ALT_DIM) != (te->client->ps.eFlags & EF_ALT_DIM)) {
+            VectorCopy(&origin, &ent->r.currentOrigin);
+            passent = te->s.number;
+            continue;
+        }
 
         if (ent->s.weapon == G2_MODEL_PART && !ent->bounceCount) {
             vector3 lowerOrg;
@@ -804,19 +804,19 @@ void G_RunMissile(gentity_t *ent) {
             return;
         }
 
-    if (ent->parent && ent->parent->client && ent->parent->client->hook && ent->parent->client->ps.eFlags != ent->s.eFlags && !strcmp(ent->classname, "hook")) {
-        ent->s.eFlags = ent->parent->s.eFlags;
-    }
+        if (ent->parent && ent->parent->client && ent->parent->client->hook && ent->parent->client->ps.eFlags != ent->s.eFlags && !strcmp(ent->classname, "hook")) {
+            ent->s.eFlags = ent->parent->s.eFlags;
+        }
 
-    if (tr.fraction != 1) {
-        // never explode or bounce on sky
-        if (tr.surfaceFlags & SURF_NOIMPACT) {
-            // If grapple, reset owner
-            //	if ( ent->parent && ent->parent->client && ent->parent->client->hook == ent )
-            //		ent->parent->client->hook = NULL;
-            if (ent->parent && ent->parent->client && ent->parent->client->hook && ent->parent->client->hook == ent) {
-                Weapon_HookFree(ent->parent->client->hook);
-            }
+        if (tr.fraction != 1) {
+            // never explode or bounce on sky
+            if (tr.surfaceFlags & SURF_NOIMPACT) {
+                // If grapple, reset owner
+                //	if ( ent->parent && ent->parent->client && ent->parent->client->hook == ent )
+                //		ent->parent->client->hook = NULL;
+                if (ent->parent && ent->parent->client && ent->parent->client->hook && ent->parent->client->hook == ent) {
+                    Weapon_HookFree(ent->parent->client->hook);
+                }
 
                 if ((ent->s.weapon == WP_SABER && ent->isSaberEntity) || isKnockedSaber) {
                     G_RunThink(ent);
@@ -892,7 +892,7 @@ gentity_t *fire_grapple(gentity_t *self, vector3 *start, vector3 *dir) {
     hook->nextthink = level.time + 10000;
     hook->think = Weapon_HookFree;
     hook->s.eType = ET_MISSILE;
-    hook->r.svFlags |= SVF_USE_CURRENT_ORIGIN;
+    hook->r.svFlags = SVF_USE_CURRENT_ORIGIN | SVF_BROADCASTCLIENTS;
     hook->s.weapon = WP_STUN_BATON; // WP_BRYAR_PISTOL
     hook->r.ownerNum = self->s.number;
     hook->methodOfDeath = MOD_STUN_BATON;
@@ -907,6 +907,14 @@ gentity_t *fire_grapple(gentity_t *self, vector3 *start, vector3 *dir) {
     if (self->client->pers.adminData.isGhost) {
         hook->r.svFlags |= SVF_SINGLECLIENT;
         hook->r.singleClient = self->s.number;
+    }
+
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        if (level.clients[i].pers.connected == CON_CONNECTED && (self->s.eFlags & EF_ALT_DIM) == (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
+            Q_AddToBitflags(self->r.broadcastClients, i, 32);
+        } else {
+            Q_RemoveFromBitflags(self->r.broadcastClients, i, 32);
+        }
     }
 
     VectorCopy(start, &hook->s.pos.trBase);
