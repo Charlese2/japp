@@ -133,6 +133,10 @@ qboolean ValidateBoard(Vehicle_t *pVeh, bgEntity_t *pEnt) {
         return qfalse;
     }
 
+    if ((parent->s.eFlags & EF_ALT_DIM) != (pEnt->s.eFlags & EF_ALT_DIM)) {
+        return qfalse;
+    }
+
     if (pVeh->m_pPilot != NULL) {                       // already have a driver!
         if (pVeh->m_pVehicleInfo->type == VH_FIGHTER) { // I know, I know, this should by in the fighters's validateboard()
             // can never steal a fighter from it's pilot
