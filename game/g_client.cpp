@@ -2934,9 +2934,10 @@ void ClientSpawn(gentity_t *ent) {
     }
     client->pers.teamState.state = TEAM_ACTIVE;
 
+    // don't clear alternate dimension flag
     // toggle the teleport bit so the client knows to not lerp
     // and never clear the voted flag
-    flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT);
+    flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT | EF_ALT_DIM);
     flags ^= EF_TELEPORT_BIT;
     gameFlags = ent->client->mGameFlags & (PSG_VOTED);
 
