@@ -1197,6 +1197,8 @@ gentity_t *NPC_Spawn_Do(gentity_t *ent) {
         newent->healingsound = ent->healingsound;
         newent->healingrate = ent->healingrate;
         newent->model2 = ent->model2; // for droidNPC
+
+        newent->r.svFlags |= SVF_BROADCASTCLIENTS;
     } else {
         newent->client->ps.weapon = WP_NONE; // init for later check in NPC_Begin
     }

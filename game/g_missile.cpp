@@ -687,14 +687,14 @@ void G_RunMissile(gentity_t *ent) {
     gentity_t *te;
 
     for (int i = 0; i < MAX_CLIENTS; i++) {
-        if (level.clients[i].pers.connected == CON_CONNECTED && (ent->s.eFlags & EF_ALT_DIM) == (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
-            Q_AddToBitflags(ent->r.broadcastClients, i, 32);
+        if (level.clients[i].pers.connected == CON_CONNECTED) {
+            if ((ent->s.eFlags & EF_ALT_DIM) == (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
+                Q_AddToBitflags(ent->r.broadcastClients, i, 32);
+            } else {
+                Q_RemoveFromBitflags(ent->r.broadcastClients, i, 32);
+            }
         }
-        else
-        {
-            Q_RemoveFromBitflags(ent->r.broadcastClients, i, 32);
-        }
-	}
+    }
 
     if (ent->neverFree && ent->s.weapon == WP_SABER && (ent->flags & FL_BOUNCE_HALF)) {
         isKnockedSaber = qtrue;
@@ -910,10 +910,12 @@ gentity_t *fire_grapple(gentity_t *self, vector3 *start, vector3 *dir) {
     }
 
     for (int i = 0; i < MAX_CLIENTS; i++) {
-        if (level.clients[i].pers.connected == CON_CONNECTED && (self->s.eFlags & EF_ALT_DIM) == (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
-            Q_AddToBitflags(self->r.broadcastClients, i, 32);
-        } else {
-            Q_RemoveFromBitflags(self->r.broadcastClients, i, 32);
+        if (level.clients[i].pers.connected == CON_CONNECTED) {
+            if ((self->s.eFlags & EF_ALT_DIM) == (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
+                Q_AddToBitflags(self->r.broadcastClients, i, 32);
+            } else {
+                Q_RemoveFromBitflags(self->r.broadcastClients, i, 32);
+            }
         }
     }
 

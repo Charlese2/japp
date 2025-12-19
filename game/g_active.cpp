@@ -895,6 +895,10 @@ void G_UpdateClientBroadcasts(gentity_t *self) {
     int i;
     gentity_t *other;
 
+    if (self->s.number >= MAX_CLIENTS) {
+        return;
+    }
+
     // we are always sent to ourselves
     // we are always sent to other clients if we are in their PVS
     // if we are not in their PVS, we must set the broadcastClients bit field
@@ -2421,16 +2425,29 @@ void ClientThink_real(gentity_t *ent) {
                 qboolean themDueling = other->client->ps.duelInProgress;
                 int themDuelist = other->client->ps.duelIndex;
 
+                int selfDim = ent->playerState->eFlags & EF_ALT_DIM;
+                int otherDim = other->client->ps.eFlags & EF_ALT_DIM;
+
                 if ((selfDueling && i != selfDuelist) || (themDueling && themDuelist != selfNum)) {
                     other->savedContents = other->r.contents;
                     other->r.contents = 0;
                     trap->LinkEntity((sharedEntity_t *)other);
-                }
-
-                else if (ent->playerState && other->playerState && (ent->playerState->eFlags & EF_ALT_DIM) != (other->playerState->eFlags & EF_ALT_DIM)) {
+                } else if (selfDim != otherDim) {
                     other->savedContents = other->r.contents;
                     other->r.contents = 0;
                     trap->LinkEntity((sharedEntity_t *)other);
+                }
+            }
+        }
+
+        if (ent->inuse) {
+            for (other = &g_entities[MAX_CLIENTS]; i < MAX_GENTITIES; i++, other++) {
+                if (other->inuse) {
+                    if (ent->playerState && (ent->playerState->eFlags & EF_ALT_DIM) != (other->s.eFlags & EF_ALT_DIM)) {
+                        other->savedContents = other->r.contents;
+                        other->r.contents = 0;
+                        trap->LinkEntity((sharedEntity_t *)other);
+                    }
                 }
             }
         }
@@ -2456,6 +2473,17 @@ void ClientThink_real(gentity_t *ent) {
                 } else if (selfDim != otherDim) {
                     other->r.contents = other->savedContents;
                     trap->LinkEntity((sharedEntity_t *)other);
+                }
+            }
+        }
+
+        if (ent->inuse) {
+            for (other = &g_entities[MAX_CLIENTS]; i < MAX_GENTITIES; i++, other++) {
+                if (other->inuse) {
+                    if (ent->playerState && (ent->playerState->eFlags & EF_ALT_DIM) != (other->s.eFlags & EF_ALT_DIM)) {
+                        other->r.contents = other->savedContents;
+                        trap->LinkEntity((sharedEntity_t *)other);
+                    }
                 }
             }
         }

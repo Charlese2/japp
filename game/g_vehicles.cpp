@@ -1152,10 +1152,12 @@ static qboolean Update(Vehicle_t *pVeh, const usercmd_t *pUmcd) {
     }
 
     for (i = 0; i < MAX_CLIENTS; i++) {
-        if (level.clients[i].pers.connected == CON_CONNECTED && (parent->s.eFlags & EF_ALT_DIM) == (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
-            Q_AddToBitflags(parent->r.broadcastClients, i, 32);
-        } else {
-            Q_RemoveFromBitflags(parent->r.broadcastClients, i, 32);
+        if (level.clients[i].pers.connected == CON_CONNECTED) {
+            if ((parent->s.eFlags & EF_ALT_DIM) == (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
+                Q_AddToBitflags(parent->r.broadcastClients, i, 32);
+            } else {
+                Q_RemoveFromBitflags(parent->r.broadcastClients, i, 32);
+            }
         }
     }
 #endif

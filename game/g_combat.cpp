@@ -4163,7 +4163,13 @@ static qboolean CanDamage(gentity_t *targ, gentity_t *attacker, vector3 *origin)
         if ((attacker->client && attacker->client->ps.duelInProgress && attacker->client->ps.duelIndex != targ - g_entities) ||
             (targ->client->ps.duelInProgress && targ->client->ps.duelIndex != attacker - g_entities)) {
             return qfalse;
-        } else if (attacker->client && (targ->s.eFlags & EF_ALT_DIM) != (attacker->s.eFlags & EF_ALT_DIM)) {
+        }
+    }
+    if (targ) {
+        if (!attacker && (targ->s.eFlags & EF_ALT_DIM)) {
+            return qfalse;
+        }
+        if (attacker && (targ->s.eFlags & EF_ALT_DIM) != (attacker->s.eFlags & EF_ALT_DIM)) {
             return qfalse;
         }
     }
