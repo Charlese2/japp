@@ -2838,6 +2838,17 @@ void WP_SaberDoHit(gentity_t *self, int saberNum, int bladeNum) {
             te->s.otherEntityNum2 = self->s.number;
             te->s.weapon = saberNum;
             te->s.legsAnim = bladeNum;
+            te->r.svFlags |= SVF_BROADCASTCLIENTS;
+
+            for (int i = 0; i < MAX_CLIENTS; i++) {
+                if (level.clients[i].pers.connected == CON_CONNECTED) {
+                    if ((self->s.eFlags & EF_ALT_DIM) == (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
+                        Q_AddToBitflags(te->r.broadcastClients, i, 32);
+                    } else {
+                        Q_RemoveFromBitflags(te->r.broadcastClients, i, 32);
+                    }
+                }
+            }
 
             VectorCopy(&dmgSpot[i], &te->s.origin);
             // VectorCopy(tr.plane.normal, te->s.angles);
