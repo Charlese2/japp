@@ -686,12 +686,16 @@ void G_RunMissile(gentity_t *ent) {
     int traces = 3;
     gentity_t *te;
 
-    for (int i = 0; i < MAX_CLIENTS; i++) {
-        if (level.clients[i].pers.connected == CON_CONNECTED) {
-            if ((ent->s.eFlags & EF_ALT_DIM) == (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
+    if (ent->r.svFlags & SVF_BROADCASTCLIENTS) {
+        for (int i = 0; i < MAX_CLIENTS; i++) {
+            if (level.clients[i].pers.connected == CON_CONNECTED) {
+                if (ent->parent && ent->parent->client && !ent->parent->client->ps.duelInProgress && level.clients[i].ps.duelInProgress) {
+                    continue;
+                }
+                if ((ent->s.eFlags & EF_ALT_DIM) != (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
+                    continue;
+                }
                 Q_AddToBitflags(ent->r.broadcastClients, i, 32);
-            } else {
-                Q_RemoveFromBitflags(ent->r.broadcastClients, i, 32);
             }
         }
     }
@@ -909,12 +913,16 @@ gentity_t *fire_grapple(gentity_t *self, vector3 *start, vector3 *dir) {
         hook->r.singleClient = self->s.number;
     }
 
-    for (int i = 0; i < MAX_CLIENTS; i++) {
-        if (level.clients[i].pers.connected == CON_CONNECTED) {
-            if ((self->s.eFlags & EF_ALT_DIM) == (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
+    if (self->r.svFlags & SVF_BROADCASTCLIENTS) {
+        for (int i = 0; i < MAX_CLIENTS; i++) {
+            if (level.clients[i].pers.connected == CON_CONNECTED) {
+                if (self->parent && self->parent->client && !self->parent->client->ps.duelInProgress && level.clients[i].ps.duelInProgress) {
+                    continue;
+                }
+                if ((self->s.eFlags & EF_ALT_DIM) != (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
+                    continue;
+                }
                 Q_AddToBitflags(self->r.broadcastClients, i, 32);
-            } else {
-                Q_RemoveFromBitflags(self->r.broadcastClients, i, 32);
             }
         }
     }

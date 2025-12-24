@@ -907,7 +907,7 @@ void G_UpdateClientBroadcasts(gentity_t *self) {
     self->r.broadcastClients[0] = 0u;
     self->r.broadcastClients[1] = 0u;
 
-    if (self->client->pers.adminData.isGhost || japp_antiWallhack.integer) {
+    if (self->client->pers.adminData.isGhost || (g_privateDuel.bits & PRIVDUEL_ALLOW) || japp_antiWallhack.integer) {
         self->r.svFlags |= SVF_BROADCASTCLIENTS;
     } else {
         self->r.svFlags &= ~SVF_BROADCASTCLIENTS;
@@ -935,6 +935,14 @@ void G_UpdateClientBroadcasts(gentity_t *self) {
                 // do not send if we are a ghost and they can't see us
                 continue;
             }
+        }
+
+        if (!self->client->ps.duelInProgress && other->client->ps.duelInProgress) {
+            continue;
+        } else if (self->client->ps.duelInProgress && other->client->ps.duelInProgress && self->s.number != other->client->ps.duelIndex) {
+            continue;
+        } else {
+            send = qtrue;
         }
 
         if (japp_antiWallhack.integer) {
@@ -2441,7 +2449,7 @@ void ClientThink_real(gentity_t *ent) {
         }
 
         if (ent->inuse) {
-            for (other = &g_entities[MAX_CLIENTS]; i < MAX_GENTITIES; i++, other++) {
+            for (i = MAX_CLIENTS, other = &g_entities[MAX_CLIENTS]; i < MAX_GENTITIES; i++, other++) {
                 if (other->inuse) {
                     if (ent->playerState && (ent->playerState->eFlags & EF_ALT_DIM) != (other->s.eFlags & EF_ALT_DIM)) {
                         other->savedContents = other->r.contents;
@@ -2478,7 +2486,7 @@ void ClientThink_real(gentity_t *ent) {
         }
 
         if (ent->inuse) {
-            for (other = &g_entities[MAX_CLIENTS]; i < MAX_GENTITIES; i++, other++) {
+            for (i = MAX_CLIENTS, other = &g_entities[MAX_CLIENTS]; i < MAX_GENTITIES; i++, other++) {
                 if (other->inuse) {
                     if (ent->playerState && (ent->playerState->eFlags & EF_ALT_DIM) != (other->s.eFlags & EF_ALT_DIM)) {
                         other->r.contents = other->savedContents;

@@ -2842,11 +2842,10 @@ void WP_SaberDoHit(gentity_t *self, int saberNum, int bladeNum) {
 
             for (int i = 0; i < MAX_CLIENTS; i++) {
                 if (level.clients[i].pers.connected == CON_CONNECTED) {
-                    if ((self->s.eFlags & EF_ALT_DIM) == (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
-                        Q_AddToBitflags(te->r.broadcastClients, i, 32);
-                    } else {
-                        Q_RemoveFromBitflags(te->r.broadcastClients, i, 32);
+                    if ((self->s.eFlags & EF_ALT_DIM) != (level.clients[i].ps.eFlags & EF_ALT_DIM)) {
+                        continue;
                     }
+                    Q_AddToBitflags(te->r.broadcastClients, i, 32);
                 }
             }
 
