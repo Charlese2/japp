@@ -60,10 +60,6 @@ if target_plat == "Linux":
         "LUA_USE_LINUX",
     ]
 
-lua_env["CPPDEFINES"] += [
-    "LUA_COMPAT_APIINTCASTS",
-]
-
 # targets
 result = lua_env.StaticLibrary(build_dir + "liblua", files)
 Return("result")

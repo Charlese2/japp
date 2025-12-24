@@ -603,9 +603,9 @@ uint32_t Event_HUD(void) {
     while (IteratePlugins(&plugin)) {
         if (plugin->eventListeners[JPLUA_EVENT_HUD]) {
             lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_HUD]);
-            lua_pushunsigned(ls.L, events);
+            lua_pushinteger(ls.L, (lua_Integer)events);
             Call(ls.L, 1, 1);
-            events |= lua_tounsigned(ls.L, -1);
+            events |= lua_tointeger(ls.L, -1);
             lua_pop(ls.L, 1);
         }
     }

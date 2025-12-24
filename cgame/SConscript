@@ -133,7 +133,6 @@ cgame_env["CPPPATH"] += ["#" + os.sep + "cgame"]
 cgame_env["CPPDEFINES"] += [
     "PROJECT_CGAME",
     "JPLUA",
-    "LUA_COMPAT_APIINTCASTS",
 ]
 if target_plat == "Linux":
     cgame_env["CPPDEFINES"] += [

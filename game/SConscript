@@ -187,7 +187,6 @@ game_env["CPPPATH"] += ["#" + os.sep + "game"]
 game_env["CPPDEFINES"] += [
     "PROJECT_GAME",
     "JPLUA",
-    "LUA_COMPAT_APIINTCASTS",
 ]
 if target_plat == "Linux":
     game_env["CPPDEFINES"] += [

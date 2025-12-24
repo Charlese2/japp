@@ -31,7 +31,7 @@ luaServer_t *CheckServer(lua_State *L, int idx) {
 }
 
 static int Server_GetCInfo(lua_State *L) {
-    lua_pushunsigned(L, cgs.japp.jp_cinfo);
+    lua_pushinteger(L, (lua_Integer)cgs.japp.jp_cinfo);
     return 1;
 }
 
