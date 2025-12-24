@@ -895,7 +895,7 @@ Q_NAKED int BoxOnPlaneSide(vector3 *emins, vector3 *emaxs, struct cplane_s *p) {
     qasm1(int 3)
 
     qnakedend(BOPS)
-//clang-format on
+// clang-format on
 }
 #if defined(_MSC_VER)
 #pragma warning(pop)
