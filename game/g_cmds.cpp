@@ -2292,7 +2292,7 @@ void Cmd_EngageDuel_f(gentity_t *ent, bool fullforce) {
 
         if (!challenged || !challenged->client || !challenged->inuse || challenged->health < 1 || challenged->client->ps.stats[STAT_HEALTH] < 1 ||
             //	challenged->client->ps.weapon != WP_SABER ||
-            challenged->client->ps.duelInProgress || challenged->client->ps.saberInFlight) {
+            (challenged->client->ps.eFlags & EF_ALT_DIM) != (ent->client->ps.eFlags & EF_ALT_DIM) || challenged->client->ps.duelInProgress || challenged->client->ps.saberInFlight) {
             return;
         }
 

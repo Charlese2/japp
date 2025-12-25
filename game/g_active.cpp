@@ -1966,7 +1966,6 @@ void ClientThink_real(gentity_t *ent) {
             }
 
             Jetpack_Off(ent);
-            ent->client->ps.eFlags &= ~EF_ALT_DIM;
             ent->client->ps.stats[STAT_HOLDABLE_ITEMS] &= ~(1 << HI_JETPACK);
         } else {
             client->ps.speed = 0;
@@ -2448,7 +2447,7 @@ void ClientThink_real(gentity_t *ent) {
             }
         }
 
-        if (ent->inuse) {
+        if (ent->inuse && japp_altdim.integer) {
             for (i = MAX_CLIENTS, other = &g_entities[MAX_CLIENTS]; i < MAX_GENTITIES; i++, other++) {
                 if (other->inuse) {
                     if (ent->playerState && (ent->playerState->eFlags & EF_ALT_DIM) != (other->s.eFlags & EF_ALT_DIM)) {
@@ -2485,7 +2484,7 @@ void ClientThink_real(gentity_t *ent) {
             }
         }
 
-        if (ent->inuse) {
+        if (ent->inuse && japp_altdim.integer) {
             for (i = MAX_CLIENTS, other = &g_entities[MAX_CLIENTS]; i < MAX_GENTITIES; i++, other++) {
                 if (other->inuse) {
                     if (ent->playerState && (ent->playerState->eFlags & EF_ALT_DIM) != (other->s.eFlags & EF_ALT_DIM)) {
