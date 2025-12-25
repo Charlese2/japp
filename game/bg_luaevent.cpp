@@ -47,15 +47,15 @@ int Event_AddListener(lua_State *L) {
         return 0;
     }
 
-		for (int i = 0; i < JPLUA_EVENT_MAX; i++) {
-			if (!Q_stricmp(listenerArg, eventNames[i].name)) {
-				if (ls.currentPlugin->eventListeners[i] != 0) {
-					luaL_unref(L, LUA_REGISTRYINDEX, ls.currentPlugin->eventListeners[i]);
-				}
-				ls.currentPlugin->eventListeners[i] = luaL_ref(L, LUA_REGISTRYINDEX);
-				return 0;
-			}
-		}
+    for (int i = 0; i < JPLUA_EVENT_MAX; i++) {
+        if (!Q_stricmp(listenerArg, eventNames[i].name)) {
+            if (ls.currentPlugin->eventListeners[i] != 0) {
+                luaL_unref(L, LUA_REGISTRYINDEX, ls.currentPlugin->eventListeners[i]);
+            }
+            ls.currentPlugin->eventListeners[i] = luaL_ref(L, LUA_REGISTRYINDEX);
+            return 0;
+        }
+    }
 
 #if defined(PROJECT_GAME)
     G_LogPrintf(level.log.console,
@@ -672,7 +672,7 @@ void Event_Pain(int target, int inflictor, int attacker, int health, int armor, 
             Player_CreateRef(ls.L, attacker);
             lua_pushinteger(ls.L, health);
             lua_pushinteger(ls.L, armor);
-            lua_pushinteger(ls.L, dflags);
+            lua_pushinteger(ls.L, (lua_Integer)dflags);
             lua_pushinteger(ls.L, mod);
 
             Call(ls.L, 7, 0);

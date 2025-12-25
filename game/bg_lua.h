@@ -49,7 +49,7 @@ qboolean IteratePlugins(std::shared_ptr<plugin_t> *plugin, bool ifActive = true)
 qboolean IteratePluginsTemp(std::shared_ptr<plugin_t> *plugin, bool ifActive = true); // FIXME: hide type of plugin_t?
 void ListPlugins(void);
 bool EnablePlugin(std::shared_ptr<plugin_t> plugin);
-void DisablePlugin(std::shared_ptr<plugin_t> plugin);
+void DisablePlugin(std::shared_ptr<plugin_t> plugin, qboolean restart = qfalse);
 std::shared_ptr<plugin_t> FindPlugin(const char *const pluginName);
 void UpdateAutoload(void);
 const char *DoString(const char *str);

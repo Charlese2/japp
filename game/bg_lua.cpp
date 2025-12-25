@@ -471,7 +471,7 @@ bool EnablePlugin(std::shared_ptr<plugin_t> plugin) {
     return true;
 }
 
-void DisablePlugin(std::shared_ptr<plugin_t> plugin) {
+void DisablePlugin(std::shared_ptr<plugin_t> plugin, qboolean restart) {
     if (!plugin->enabled) {
         trap->Print(S_COLOR_YELLOW "plugin '%s' already unloaded\n", plugin->name);
     }
@@ -482,7 +482,7 @@ void DisablePlugin(std::shared_ptr<plugin_t> plugin) {
         std::shared_ptr<plugin_t> current = ls.currentPlugin;
         ls.currentPlugin = plugin;
         lua_rawgeti(ls.L, LUA_REGISTRYINDEX, plugin->eventListeners[JPLUA_EVENT_UNLOAD]);
-        lua_pushboolean(ls.L, qfalse);
+        lua_pushboolean(ls.L, restart);
         Call(ls.L, 1, 0);
         ls.currentPlugin = current;
     }
