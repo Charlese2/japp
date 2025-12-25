@@ -28,7 +28,8 @@ void G_ReflectMissile(gentity_t *ent, gentity_t *missile, vector3 *forward) {
     speed = VectorNormalize(&missile->s.pos.trDelta);
 
     // if ( ent && owner && owner->NPC && owner->enemy && Q_stricmp( "Tavion", owner->NPC_type ) == 0 && Q_irand( 0, 3 ) )
-    if (g_entities[missile->r.ownerNum].inuse && missile->s.weapon != WP_SABER && missile->s.weapon != G2_MODEL_PART && !isowner) { // bounce back at them if you can
+    if (g_entities[missile->r.ownerNum].inuse && missile->s.weapon != WP_SABER && missile->s.weapon != G2_MODEL_PART &&
+        !isowner) { // bounce back at them if you can
         VectorSubtract(&g_entities[missile->r.ownerNum].r.currentOrigin, &missile->r.currentOrigin, &bounce_dir);
         VectorNormalize(&bounce_dir);
     } else if (isowner) { // in this case, actually push the missile away from me, and since we're giving boost to our own missile by pushing it, up the
@@ -227,8 +228,7 @@ gentity_t *CreateMissile(vector3 *org, vector3 *dir, float vel, int life, gentit
         missile->s.eFlags |= EF_ALT_DIM;
     }
 
-    if (owner->m_pVehicle && owner->m_pVehicle->m_pPilot && owner->m_pVehicle->m_pPilot->s.eFlags & EF_ALT_DIM)
-    {
+    if (owner->m_pVehicle && owner->m_pVehicle->m_pPilot && owner->m_pVehicle->m_pPilot->s.eFlags & EF_ALT_DIM) {
         missile->s.eFlags |= EF_ALT_DIM;
     }
 
@@ -771,7 +771,7 @@ void G_RunMissile(gentity_t *ent) {
         if (te->inuse && ((te->client && te->client->ps.duelInProgress && te->client->ps.duelIndex != ent->parent->s.number) ||
                           (!Q_stricmp(te->classname, "lightsaber") && (g_entities[te->r.ownerNum].client->ps.duelInProgress) &&
                            (g_entities[te->r.ownerNum].client->ps.duelIndex != ent->parent->s.number)))) {
-  
+
             VectorCopy(&origin, &ent->r.currentOrigin);
             passent = te->s.number;
             continue;
@@ -808,7 +808,8 @@ void G_RunMissile(gentity_t *ent) {
             return;
         }
 
-        if (ent->parent && ent->parent->client && ent->parent->client->hook && ent->parent->client->ps.eFlags != ent->s.eFlags && !strcmp(ent->classname, "hook")) {
+        if (ent->parent && ent->parent->client && ent->parent->client->hook && ent->parent->client->ps.eFlags != ent->s.eFlags &&
+            !strcmp(ent->classname, "hook")) {
             ent->s.eFlags = ent->parent->s.eFlags;
         }
 

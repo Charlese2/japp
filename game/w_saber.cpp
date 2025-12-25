@@ -2425,12 +2425,12 @@ static int G_PowerLevelForSaberAnim(gentity_t *ent, int saberNum, qboolean mySab
         case BOTH_FJSS_TL_BR:
             // FIXME: break up?
             return FORCE_LEVEL_3;
-        case BOTH_K1_S1_T_: //# knockaway saber top
-        case BOTH_K1_S1_TR: //# knockaway saber top right
-        case BOTH_K1_S1_TL: //# knockaway saber top left
-        case BOTH_K1_S1_BL: //# knockaway saber bottom left
-        case BOTH_K1_S1_B_: //# knockaway saber bottom
-        case BOTH_K1_S1_BR: //# knockaway saber bottom right
+        case BOTH_K1_S1_T_: // # knockaway saber top
+        case BOTH_K1_S1_TR: // # knockaway saber top right
+        case BOTH_K1_S1_TL: // # knockaway saber top left
+        case BOTH_K1_S1_BL: // # knockaway saber bottom left
+        case BOTH_K1_S1_B_: // # knockaway saber bottom
+        case BOTH_K1_S1_BR: // # knockaway saber bottom right
             // FIXME: break up?
             return FORCE_LEVEL_3;
         case BOTH_LUNGE2_B__T_:
@@ -4326,13 +4326,14 @@ void WP_SaberStartMissileBlockCheck(gentity_t *self, usercmd_t *ucmd) {
         if (ent == self)
             continue;
 
-		if (ent && ent->client && ent->client->ps.duelInProgress && ent->client->ps.duelIndex != self->s.number) {
-			doFullRoutine = qfalse;
-			continue;
-		} else if (self->client && ent && ent->parent && ent->parent->client && (self->client->ps.eFlags & EF_ALT_DIM) != (ent->parent->client->ps.eFlags & EF_ALT_DIM)) {
-			doFullRoutine = qfalse;
-			continue;
-		}
+        if (ent && ent->client && ent->client->ps.duelInProgress && ent->client->ps.duelIndex != self->s.number) {
+            doFullRoutine = qfalse;
+            continue;
+        } else if (self->client && ent && ent->parent && ent->parent->client &&
+                   (self->client->ps.eFlags & EF_ALT_DIM) != (ent->parent->client->ps.eFlags & EF_ALT_DIM)) {
+            doFullRoutine = qfalse;
+            continue;
+        }
 
         // as long as we're here I'm going to get a looktarget too, I guess. -rww
         if (self->s.eType == ET_PLAYER && ent->client && (ent->s.eType == ET_NPC || ent->s.eType == ET_PLAYER) && !OnSameTeam(ent, self) &&
@@ -5848,7 +5849,7 @@ void UpdateClientRenderinfo(gentity_t *self, vector3 *renderOrigin, vector3 *ren
         // We're just going to give rough estimates on most of this stuff,
         // it's not like most of it matters.
 
-#if 0 //#if 0'd since it's a waste setting all this to 0 each frame.
+#if 0 // #if 0'd since it's a waste setting all this to 0 each frame.
       // Should you wish to make any of this valid then feel free to do so.
 		ri->headYawRangeLeft = ri->headYawRangeRight = ri->headPitchRangeUp = ri->headPitchRangeDown = 0;
 		ri->torsoYawRangeLeft = ri->torsoYawRangeRight = ri->torsoPitchRangeUp = ri->torsoPitchRangeDown = 0;

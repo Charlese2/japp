@@ -238,7 +238,7 @@ const char *G_Cvar_DefaultString(const vmCvar_t *vmCvar) {
 std::unordered_map<std::string, cvarTable> lua_cvars;
 
 extern void G_RegisterLuaCvar(vmCvar_t *vmCvar, const char *varName, const char *defaultValue, uint32_t flags);
-void G_RegisterLuaCvar(vmCvar_t* vmCvar, const char* varName, const char* defaultValue, uint32_t flags) {
+void G_RegisterLuaCvar(vmCvar_t *vmCvar, const char *varName, const char *defaultValue, uint32_t flags) {
     cvarTable table{};
     table.vmCvar = vmCvar;
     table.cvarName.assign(varName);
@@ -2565,7 +2565,7 @@ int g_TimeSinceLastFrame = 0;
 qboolean gDoSlowMoDuel = qfalse;
 int gSlowMoDuelTime = 0;
 
-//#define _G_FRAME_PERFANAL
+// #define _G_FRAME_PERFANAL
 
 void NAV_CheckCalcPaths(void) {
     if (navCalcPathTime && navCalcPathTime < level.time) { // first time we've ever loaded this map...

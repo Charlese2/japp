@@ -1848,7 +1848,8 @@ void laserTrapDelayedExplode(gentity_t *self, gentity_t *inflictor, gentity_t *a
 void touchLaserTrap(gentity_t *ent, gentity_t *other, trace_t *trace) {
     if (other && other->client && ent->parent && other->client->ps.duelInProgress && other->client->ps.duelIndex != ent->parent->s.number)
         return;
-    else if (other && other->client && ent->parent && ent->parent->client && (ent->parent->client->ps.eFlags & EF_ALT_DIM) != (other->client->ps.eFlags & EF_ALT_DIM))
+    else if (other && other->client && ent->parent && ent->parent->client &&
+             (ent->parent->client->ps.eFlags & EF_ALT_DIM) != (other->client->ps.eFlags & EF_ALT_DIM))
         return;
     if (other && other->s.number < ENTITYNUM_WORLD) {
         // just explode if we hit any entity. This way we don't have things happening like tripmines floating in the air
@@ -2549,7 +2550,7 @@ static void WP_FireConcussionAlt(gentity_t *ent) { // a rail-gun-like beam
             skip = tr.entityNum;
             continue;
         }
-            
+
         // always render a shot beam, doing this the old way because I don't much feel like overriding the effect.
         // NOTE: let's just draw one beam at the end
         // tent = G_TempEntity( tr.endpos, EV_CONC_ALT_SHOT );
