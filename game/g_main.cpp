@@ -290,6 +290,7 @@ void G_UpdateCvars(void) {
             int modCount = cv->vmCvar->modificationCount;
             trap->Cvar_Update(cv->vmCvar);
             if (cv->vmCvar->modificationCount != modCount) {
+                JPLua::Cvar_Update(cv->cvarName);
                 if (cv->update) {
                     cv->update();
                 }
@@ -302,7 +303,7 @@ void G_UpdateCvars(void) {
     }
 
     for (const auto &pair : lua_cvars) {
-        auto table = pair.second;
+        auto &table = pair.second;
         if (table.vmCvar) {
             int modCount = table.vmCvar->modificationCount;
             trap->Cvar_Update(table.vmCvar);
