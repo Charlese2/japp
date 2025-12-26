@@ -302,7 +302,9 @@ void CG_LuaReload_f(void) {
     for (char *p = strtok(args, delim); p; p = strtok(NULL, delim)) {
         std::shared_ptr<JPLua::plugin_t> plugin = JPLua::FindPlugin(p);
         if (plugin) {
-            JPLua::DisablePlugin(plugin);
+            if (plugin->enabled) {
+                JPLua::DisablePlugin(plugin, qtrue);
+            }
             JPLua::EnablePlugin(plugin);
         }
     }
