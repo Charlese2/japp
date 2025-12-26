@@ -2449,7 +2449,7 @@ void ClientThink_real(gentity_t *ent) {
 
         if (ent->inuse && japp_altdim.integer) {
             for (i = MAX_CLIENTS, other = &g_entities[MAX_CLIENTS]; i < MAX_GENTITIES; i++, other++) {
-                if (other->inuse) {
+                if (other->inuse && other->NPC) {
                     if (ent->playerState && (ent->playerState->eFlags & EF_ALT_DIM) != (other->s.eFlags & EF_ALT_DIM)) {
                         other->savedContents = other->r.contents;
                         other->r.contents = 0;
@@ -2486,7 +2486,7 @@ void ClientThink_real(gentity_t *ent) {
 
         if (ent->inuse && japp_altdim.integer) {
             for (i = MAX_CLIENTS, other = &g_entities[MAX_CLIENTS]; i < MAX_GENTITIES; i++, other++) {
-                if (other->inuse) {
+                if (other->inuse && other->NPC) {
                     if (ent->playerState && (ent->playerState->eFlags & EF_ALT_DIM) != (other->s.eFlags & EF_ALT_DIM)) {
                         other->r.contents = other->savedContents;
                         trap->LinkEntity((sharedEntity_t *)other);
