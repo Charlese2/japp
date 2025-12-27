@@ -824,9 +824,10 @@ static int Export_AddConsoleCommand(lua_State *L) {
     StackCheck st(L);
 
     std::string name = luaL_checkstring(L, 1);
-    std::transform(name.begin(), name.end(), name.begin(), [](unsigned char character) { return std::tolower(character); });
+    std::string lowercaseName = name;
+    std::transform(lowercaseName.begin(), lowercaseName.end(), lowercaseName.begin(), [](unsigned char character) { return std::tolower(character); });
 
-    command_t &cmd = consoleCommands[name];
+    command_t &cmd = consoleCommands[lowercaseName];
     if (cmd.handle) {
         // already exists
         trap->Print("JPlua: AddConsoleCommand(%s) failed, command already exists. Remove command first\n", name.data());
@@ -860,7 +861,7 @@ static int Export_AddServerCommand(lua_State *L) {
     StackCheck st(L);
 
     std::string name = luaL_checkstring(L, 1);
-    std::transform(name.begin(), name.end(), name.begin(), [](char character) { return std::tolower(character); });
+    std::transform(name.begin(), name.end(), name.begin(), [](unsigned char character) { return std::tolower(character); });
 
     command_t &cmd = serverCommands[name];
     if (cmd.handle) {
