@@ -29,11 +29,15 @@ int CreateCvar(lua_State *L) {
     StackCheck st(L);
 
     const char *name = lua_tostring(L, 1);
-    if (luaCvarNextIndex >= luaVmCvars.size()) {
+    vmCvar_t *lua_vmCvar = nullptr;
+    auto map_element = luaCvarMap.find(name);
+    if (map_element != luaCvarMap.end()) {
+        lua_vmCvar = map_element->second;
+    }
+    if (!lua_vmCvar && luaCvarNextIndex >= luaVmCvars.size()) {
+        trap->Print(S_COLOR_RED "Too many cvars, can not add: %s\n", name);
         return 0;
     }
-
-    vmCvar_t *lua_vmCvar = luaCvarMap[name];
 
     if (lua_vmCvar == nullptr) {
         lua_vmCvar = &luaVmCvars[luaCvarNextIndex];
