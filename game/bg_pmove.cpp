@@ -5822,6 +5822,14 @@ static qboolean BG_SPCartwheel(void) {
     return qfalse;
 }
 
+static qboolean BG_BackflipAttack(void) {
+    int anim = pm->ps->legsAnim;
+    if (anim == BOTH_FLIP_BACK1 || anim == BOTH_FLIP_BACK2 || anim == BOTH_FLIP_BACK3) {
+        return qtrue;
+    }
+    return qfalse;
+}
+
 int PM_KickMoveForConditions(void);
 // Generates weapon events and modifies the weapon counter
 static void PM_Weapon(void) {
@@ -6070,7 +6078,8 @@ static void PM_Weapon(void) {
         return;
     }
 
-    if ((BG_InSpecialJump(pm->ps->legsAnim) && !BG_SPCartwheel()) || BG_InRoll(pm->ps, pm->ps->legsAnim) || PM_InRollComplete(pm->ps, pm->ps->legsAnim)) {
+    if ((BG_InSpecialJump(pm->ps->legsAnim) && !BG_BackflipAttack() && !BG_SPCartwheel()) || BG_InRoll(pm->ps, pm->ps->legsAnim) ||
+        PM_InRollComplete(pm->ps, pm->ps->legsAnim)) {
         /*
         if (pm->cmd.weapon != WP_MELEE &&
         pm->ps->weapon != WP_MELEE &&
