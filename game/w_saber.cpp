@@ -6068,6 +6068,10 @@ static gentity_t *G_KickTrace(gentity_t *ent, vector3 *kickDir, float kickDist, 
             }
         }
 
+        if ((ent->client->ps.eFlags & EF_ALT_DIM) != (hitEnt->s.eFlags & EF_ALT_DIM)) {
+            return NULL;
+        }
+
         ent->client->jediKickIndex = trace.entityNum;
         ent->client->jediKickTime = level.time + ent->client->ps.legsTimer;
 

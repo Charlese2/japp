@@ -3,6 +3,7 @@
 // g_combat.c
 
 #include "b_local.h"
+#include "bg_public.h"
 #include "bg_saga.h"
 #include "bg_lua.h"
 
@@ -3322,6 +3323,10 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vector
         }
 
         if ((japp_chatProtection.integer && (targ->client->ps.eFlags & EF_TALK)) && !targ->client->ps.duelInProgress) {
+            return;
+        }
+
+        if (attacker && (targ->client->ps.eFlags & EF_ALT_DIM) != (attacker->s.eFlags & EF_ALT_DIM)) {
             return;
         }
     }
